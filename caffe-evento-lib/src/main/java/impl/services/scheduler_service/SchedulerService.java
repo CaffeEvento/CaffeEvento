@@ -15,6 +15,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -137,7 +138,7 @@ public class SchedulerService extends AbstractService {
                     delay = Duration.between(Instant.now(), (new SimpleDateFormat(DATE_FORMAT).parse(sourceEvent.getEventField(START_TIME))).toInstant()).toMillis();
                 }
                 if (sourceEvent.getEventField(DELAY) != null) {
-                        delay = Long.max(Duration.parse(sourceEvent.getEventField(DELAY)).toMillis(), delay);
+                    delay = Long.max(Duration.parse(sourceEvent.getEventField(DELAY)).toMillis(), delay);
                 }
                 if (sourceEvent.getEventField(MAXDURATION) != null) {
                     maxDelayToFinish = Long.min(Duration.parse(sourceEvent.getEventField(MAXDURATION)).toMillis() + delay, maxDelayToFinish);
@@ -145,8 +146,10 @@ public class SchedulerService extends AbstractService {
                 if (sourceEvent.getEventField(REPEAT_PERIOD) != null) {
                     period =  Duration.parse(sourceEvent.getEventField(REPEAT_PERIOD)).toMillis();
                 }
-            } catch(ParseException e) {
-                throw new SchedulerException("Could not parse Field");
+            } catch (ParseException e) {
+                throw new SchedulerException("Could not parse Absolute Time Field");
+            } catch (DateTimeParseException e) {
+                throw new SchedulerException("Could not parse Duration Field");
             }
 
             // if the event can still happen schedule the event to occur
@@ -193,6 +196,7 @@ public class SchedulerService extends AbstractService {
                 SchedulerEventHandlers.add(canceled);
                 getEventQueueInterface().addEventHandler(canceled);
 
+                //the stop timer is only supposed to run if one of the time limiting fields is set.
                 if ((sourceEvent.getEventField(END_TIME) != null) || (sourceEvent.getEventField(MAXDURATION) != null)) {
                     // this launches the stop timer
                     eventTimer.schedule(new Runnable() {

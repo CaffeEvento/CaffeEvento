@@ -41,6 +41,7 @@ public class SchedulerServiceTest {
         eventQueue.addEventSource(eventGenerator);
     }
 
+    //TODO: Clean up either testScheduleEvent so that it behaves consistently, or recode SchedulerService to provide more consistent behavior
     @Test
     public void testScheduleEvent() throws Exception {
         Event scheduledEvent = new EventImpl("Test Schedule Doer", "TestReq");

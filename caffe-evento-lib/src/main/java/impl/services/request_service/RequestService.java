@@ -125,7 +125,7 @@ public class RequestService extends AbstractService {
                             log.error("Could not fufill request " + requestId + ".\n" +
                                     "Induced by " + sourceEvent.getEventName() + ": " + sourceEvent.getEventId() + "\n" +
                                     "Unable to determine configured number of retries: Defaulting to none");
-                            error.printStackTrace();
+                            //error.printStackTrace();
                             activeRequests.remove(requestId);
                             requestEventHandlers.forEach(e -> getEventQueueInterface().removeEventHandler(e));
                         }

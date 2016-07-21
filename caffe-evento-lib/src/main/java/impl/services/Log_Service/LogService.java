@@ -39,5 +39,26 @@ public class LogService extends AbstractService{
                     //log with special treatment
                 }).build()
         );
+
+        getEventQueueInterface().addEventHandler(EventHandler.create()
+                .eventType("GET_LOG")
+                .eventHandler(theEvent -> {
+                    //TODO: Return the log when requested
+                }).build()
+        );
+
+        getEventQueueInterface().addEventHandler(EventHandler.create()
+                .eventType("GET_ERROR")
+                .eventHandler(theEvent -> {
+                    //TODO: Return the log of all recent errors when requested, limit errors to predefined amount
+                }).build()
+        );
+
+        getEventQueueInterface().addEventHandler(EventHandler.create()
+                .eventType("GET_RECENT")
+                .eventHandler(theEvent -> {
+                    //TODO: Return all recent events to occur, limit to specified size
+                }).build()
+        );
     }
 }
