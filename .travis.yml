@@ -1,3 +1,5 @@
 language: java
 jdk:
   - oraclejdk8
+notifications:
+  slack: caffeevento:lQ3OlTDULWdv2nvPoRkW6h6q
