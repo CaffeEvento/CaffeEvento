@@ -1,7 +1,9 @@
 package api.events;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import impl.events.EventImpl;
+import impl.lib.JSONUtils;
 
 import java.io.Reader;
 import java.util.Date;
@@ -37,7 +39,7 @@ public interface Event {
     public static Optional<Event> decodeEvent(String theEvent) {
         try {
             return Optional.of((new GsonBuilder()).create().fromJson(theEvent, EventImpl.class));
-        } catch (IllegalStateException e) {
+        } catch (JsonSyntaxException e) {
             return Optional.empty();
         }
     }
@@ -45,7 +47,7 @@ public interface Event {
     public static Optional<Event> decodeEvent(Reader theEvent) {
         try {
             return Optional.of((new GsonBuilder()).create().fromJson(theEvent, EventImpl.class));
-        } catch (IllegalStateException e) {
+        } catch (JsonSyntaxException e) {
             return Optional.empty();
         }
     }

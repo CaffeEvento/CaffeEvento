@@ -129,12 +129,7 @@ public class SchedulerService extends AbstractService {
 
             this.schedulerId = UUID.fromString(sourceEvent.getEventField(SCHEDULE_ID_FIELD));
             scheduledEvent = Event.decodeEvent(sourceEvent.getEventField(SCHEDULED_EVENT_ACTION))
-                    .orElseThrow(new Supplier<SchedulerException>() {
-                        @Override
-                        public SchedulerException get() {
-                            return (new SchedulerException("Malformatted Event to Schedule"));
-                        }
-                    });
+                    .orElseThrow(()-> new SchedulerException("Malformatted Event to Schedule"));
 
             // break out all the optional field
             try {
@@ -165,11 +160,7 @@ public class SchedulerService extends AbstractService {
                     // this launches the repeating event
                     fireScheduledEventHandle =
                             eventTimer.scheduleAtFixedRate(
-                                    new Runnable() {
-                                        public void run() {
-                                            eventGenerator.registerEvent(new EventImpl(scheduledEvent));
-                                        }
-                                    },
+                                    ()-> eventGenerator.registerEvent(new EventImpl(scheduledEvent)),
                                     delay,
                                     period,
                                     TimeUnit.MILLISECONDS
@@ -178,12 +169,10 @@ public class SchedulerService extends AbstractService {
                     // this launches on a non-repeating event
                     fireScheduledEventHandle =
                             eventTimer.schedule(
-                                    new Runnable() {
-                                        public void run() {
-                                            eventGenerator.registerEvent(new EventImpl(scheduledEvent));
-                                            SchedulerEventHandlers.forEach(e -> getEventQueueInterface().removeEventHandler(e));
-                                            activeSchedulers.remove(schedulerId);
-                                        }
+                                    ()->{
+                                        eventGenerator.registerEvent(new EventImpl(scheduledEvent));
+                                        SchedulerEventHandlers.forEach(e -> getEventQueueInterface().removeEventHandler(e));
+                                        activeSchedulers.remove(schedulerId);
                                     },
                                     delay,
                                     TimeUnit.MILLISECONDS
@@ -206,14 +195,15 @@ public class SchedulerService extends AbstractService {
                 //the stop timer is only supposed to run if one of the time limiting fields is set.
                 if ((sourceEvent.getEventField(END_TIME) != null) || (sourceEvent.getEventField(MAXDURATION) != null)) {
                     // this launches the stop timer
-                    eventTimer.schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                            SchedulerEventHandlers.forEach(e -> getEventQueueInterface().removeEventHandler(e));
-                            activeSchedulers.remove(schedulerId);
-                            fireScheduledEventHandle.cancel(true);
-                        }
-                    }, maxDelayToFinish, TimeUnit.MILLISECONDS);
+                    eventTimer.schedule(
+                            ()-> {
+                                SchedulerEventHandlers.forEach(e -> getEventQueueInterface().removeEventHandler(e));
+                                activeSchedulers.remove(schedulerId);
+                                fireScheduledEventHandle.cancel(true);
+                            },
+                            maxDelayToFinish,
+                            TimeUnit.MILLISECONDS
+                    );
                 }
             }
         }

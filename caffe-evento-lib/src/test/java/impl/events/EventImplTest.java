@@ -59,8 +59,15 @@ public class EventImplTest {
         instance.setEventField("EventField1", "EventField1");
         instance.setEventField("EventField2", "EventField2");
         String encoded = instance.encodeEvent();
+        // confirm this is a valid test
         Event decoded  = Event.decodeEvent(encoded).orElse(null);
+        assertNotNull("Malformatted Event", decoded);
         assertEventsEqual(instance, decoded);
+    }
+
+    @Test
+    public void testEventDecodeMalformatted() {
+        assertNull("Decoded Malformatted Event, did not return null", Event.decodeEvent("XD").orElse(null));
     }
 
     public void assertEventsEqual(Event e1, Event e2){

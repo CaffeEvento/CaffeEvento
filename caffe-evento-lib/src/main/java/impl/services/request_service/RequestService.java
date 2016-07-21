@@ -94,12 +94,7 @@ public class RequestService extends AbstractService {
 
             requestId = UUID.fromString(sourceEvent.getEventField(REQUEST_ID_FIELD));
             Event fufillmentEvent = Event.decodeEvent(sourceEvent.getEventField(REQUEST_EVENT_FUFILLMENT))
-                    .orElseThrow(new Supplier<RequestException>() {
-                        @Override
-                        public RequestException get() {
-                            return (new RequestException("Invalid request Fufillment_Event"));
-                        }
-                    });
+                    .orElseThrow(()-> new RequestException("Invalid request Fufillment_Event"));
             fufillmentEvent.setEventField(REQUEST_ID_FIELD, requestId.toString());
 
             // Event handler success
