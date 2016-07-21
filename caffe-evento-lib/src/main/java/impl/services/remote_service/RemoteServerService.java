@@ -4,6 +4,7 @@ import api.events.Event;
 import api.events.EventHandler;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.events.EventSource;
+import com.google.gson.JsonSyntaxException;
 import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
 import impl.events.EventSourceImpl;
 import api.lib.EmbeddedServletServer;
@@ -11,6 +12,7 @@ import impl.lib.servlet_server.EmbeddedServletServerImpl;
 import impl.services.AbstractService;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import java.rmi.Remote;
 import java.util.UUID;
 
 /**
@@ -39,8 +41,13 @@ public final class RemoteServerService extends AbstractService {
                 .eventType("CREATE_EVENT_HANDLER")
                 .eventData("serverId", serverId.toString())
                 .hasDataKey("eventHandlerDetails")
-                .eventHandler(event -> getEventQueueInterface()
-                        .addEventHandler(EventHandler.fromJson(event.getEventField("eventHandlerDetails"))))
+                .eventHandler(event -> {
+                    try {
+                        getEventQueueInterface().addEventHandler(EventHandler.fromJson(event.getEventField("eventHandlerDetails")));
+                    }catch(JsonSyntaxException e) {
+                        //TODO: Log this error
+                    }
+                })
                 .build());
 
         // Remove event handler event
@@ -48,8 +55,13 @@ public final class RemoteServerService extends AbstractService {
                 .eventType("REMOVE_EVENT_HANDLER")
                 .eventData("serverId", serverId.toString())
                 .hasDataKey("eventHandlerId")
-                .eventHandler(event -> getEventQueueInterface()
-                        .removeEventHandler(UUID.fromString("eventHandlerId")))
+                .eventHandler(event -> {
+                    try {
+                        getEventQueueInterface().removeEventHandler(UUID.fromString(event.getEventField("eventHandlerId")));
+                    }catch(IllegalArgumentException e) {
+                        //TODO: Log this error
+                    }
+                })
                 .build());
 
         // TODO: confirm this is the desired behavior ESP with regards to "Event.decodeEvent(req.getReader()).orElse(null)"

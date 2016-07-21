@@ -92,9 +92,13 @@ public class RequestService extends AbstractService {
                 throw new RequestException("No request fufillment event");
             }
 
-            requestId = UUID.fromString(sourceEvent.getEventField(REQUEST_ID_FIELD));
+            try {
+                requestId = UUID.fromString(sourceEvent.getEventField(REQUEST_ID_FIELD));
+            }catch(IllegalArgumentException e) {
+                throw new RequestException("Invalid format for request ID field, unable to convert to UUID: " + sourceEvent.getEventField(REQUEST_ID_FIELD));
+            }
             Event fufillmentEvent = Event.decodeEvent(sourceEvent.getEventField(REQUEST_EVENT_FUFILLMENT))
-                    .orElseThrow(()-> new RequestException("Invalid request Fufillment_Event"));
+                    .orElseThrow(()-> new RequestException("Invalid request Fufillment_Event: "+ sourceEvent.getEventField(REQUEST_EVENT_FUFILLMENT)));
             fufillmentEvent.setEventField(REQUEST_ID_FIELD, requestId.toString());
 
             // Event handler success

@@ -127,7 +127,12 @@ public class SchedulerService extends AbstractService {
                 throw new SchedulerException("No Event to Schedule");
             }
 
-            this.schedulerId = UUID.fromString(sourceEvent.getEventField(SCHEDULE_ID_FIELD));
+            try {
+                this.schedulerId = UUID.fromString(sourceEvent.getEventField(SCHEDULE_ID_FIELD));
+            } catch(IllegalArgumentException e) {
+                throw new SchedulerException("Recieved invalid Scheduler ID field, unable to convert to UUID: " + sourceEvent.getEventField(SCHEDULE_ID_FIELD));
+            }
+
             scheduledEvent = Event.decodeEvent(sourceEvent.getEventField(SCHEDULED_EVENT_ACTION))
                     .orElseThrow(()-> new SchedulerException("Malformatted Event to Schedule"));
 

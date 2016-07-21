@@ -35,6 +35,33 @@ public class SchedulerServiceMalformattedTest {
         eventQueue.addEventSource(eventGenerator);
     }
 
+    /* Mandatory Fields */
+    @Test
+    //This test intentionally sends a badly formatted field to the Scheduler in order to force logging
+    public void testLogBadActionEvent() throws Exception {
+        Event scheduledEvent = new EventImpl("Test Schedule Doer", "TestReq");
+
+        //Clunky at best
+        Map<String, String> params = new HashMap<>();
+        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        // Intentionally malformat the JSON
+        schedulerEvent.setEventField(SchedulerService.SCHEDULED_EVENT_ACTION, "XD");
+        eventGenerator.registerEvent(schedulerEvent);
+    }
+
+    @Test
+    //This test intentionally sends a badly formatted field to the Scheduler in order to force logging
+    public void testLogBadSchedulerIdEvent() throws Exception {
+        Event scheduledEvent = new EventImpl("Test Schedule Doer", "TestReq");
+
+        //Clunky at best
+        Map<String, String> params = new HashMap<>();
+        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        // Intentionally malformat the UUID
+        schedulerEvent.setEventField(SchedulerService.SCHEDULE_ID_FIELD, "XD");
+        eventGenerator.registerEvent(schedulerEvent);
+    }
+
     /* Optional Fields */
     @Test
     //This test intentionally sends a badly formatted field to the Scheduler in order to force logging
