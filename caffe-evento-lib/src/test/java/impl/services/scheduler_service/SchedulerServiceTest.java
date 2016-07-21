@@ -1,15 +1,14 @@
 package impl.services.scheduler_service;
 
-import api.event_queue.Event;
-import api.event_queue.EventQueue;
-import api.event_queue.EventQueueInterface;
-import api.event_queue.EventSource;
+import api.events.Event;
+import api.events.event_queue.EventQueue;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.EventSource;
 import api.utils.EventBuilder;
-import com.google.common.collect.ImmutableMap;
-import impl.event_queue.EventImpl;
-import impl.event_queue.EventQueueInterfaceImpl;
-import impl.event_queue.EventSourceImpl;
-import impl.event_queue.SynchronousEventQueue;
+import impl.events.EventImpl;
+import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
+import impl.events.EventSourceImpl;
+import impl.events.event_queue.SynchronousEventQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,11 +18,9 @@ import test_util.EventCollector;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;
 import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.junit.Assert.*;
 
 /** TODO:Implement tests.

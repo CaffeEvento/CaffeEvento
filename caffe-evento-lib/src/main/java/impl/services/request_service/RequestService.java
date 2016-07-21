@@ -1,11 +1,11 @@
 package impl.services.request_service;
 
-import api.event_queue.*;
-import api.event_queue.EventQueueInterface;
+import api.events.*;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import impl.services.AbstractService;
 import api.utils.EventBuilder;
-import impl.event_queue.EventImpl;
-import impl.event_queue.EventSourceImpl;
+import impl.events.EventImpl;
+import impl.events.EventSourceImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

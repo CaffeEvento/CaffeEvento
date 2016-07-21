@@ -1,6 +1,7 @@
-package impl.event_queue;
+package impl.events.event_queue;
 
-import api.event_queue.Event;
+import api.events.Event;
+import impl.events.event_queue.SynchronousEventQueue;
 
 import java.util.function.Predicate;
 

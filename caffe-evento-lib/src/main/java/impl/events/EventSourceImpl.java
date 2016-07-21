@@ -1,9 +1,8 @@
-package impl.event_queue;
+package impl.events;
 
-import api.event_queue.Event;
-import api.event_queue.EventQueue;
-import api.event_queue.EventSink;
-import api.event_queue.EventSource;
+import api.events.Event;
+import api.events.EventSink;
+import api.events.EventSource;
 
 import java.util.ArrayList;
 import java.util.List;

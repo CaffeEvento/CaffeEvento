@@ -1,7 +1,7 @@
-package api.event_queue;
+package api.events;
 
 import com.google.gson.GsonBuilder;
-import impl.event_queue.EventImpl;
+import impl.events.EventImpl;
 
 import java.io.Reader;
 import java.util.Date;

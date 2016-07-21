@@ -1,4 +1,4 @@
-package api.event_queue;
+package api.events;
 
 /**
  * Created by chris on 7/13/16.

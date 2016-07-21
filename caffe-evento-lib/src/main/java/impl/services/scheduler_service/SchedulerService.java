@@ -1,12 +1,12 @@
 package impl.services.scheduler_service;
 
-import api.event_queue.Event;
-import api.event_queue.EventHandler;
-import api.event_queue.EventQueueInterface;
-import api.event_queue.EventSource;
+import api.events.Event;
+import api.events.EventHandler;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.EventSource;
 import api.utils.EventBuilder;
-import impl.event_queue.EventImpl;
-import impl.event_queue.EventSourceImpl;
+import impl.events.EventImpl;
+import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

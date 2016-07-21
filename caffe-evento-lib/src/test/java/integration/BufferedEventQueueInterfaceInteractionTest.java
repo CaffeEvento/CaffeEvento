@@ -1,7 +1,7 @@
 package integration;
 
-import api.event_queue.EventQueueInterface;
-import impl.event_queue.BufferedEventQueueInterface;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import impl.events.event_queue.event_queue_interface.BufferedEventQueueInterface;
 
 /**
  * Created by chris on 7/14/16.

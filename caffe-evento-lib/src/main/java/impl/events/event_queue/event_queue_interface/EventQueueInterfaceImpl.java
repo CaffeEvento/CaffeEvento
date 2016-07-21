@@ -1,9 +1,9 @@
-package impl.event_queue;
+package impl.events.event_queue.event_queue_interface;
 
-import api.event_queue.EventHandler;
-import api.event_queue.EventQueueInterface;
-import api.event_queue.EventQueueInterfaceChangedListener;
-import api.event_queue.EventSource;
+import api.events.EventHandler;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.event_queue.event_queue_interface.EventQueueInterfaceChangedListener;
+import api.events.EventSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

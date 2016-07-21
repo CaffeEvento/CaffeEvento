@@ -1,24 +1,21 @@
-package impl.event_queue;
+package impl.events.event_queue;
 
-import api.event_queue.*;
-import api.event_queue.EventQueueInterface;
-import api.event_queue.EventSource;
+import api.events.EventHandler;
+import api.events.event_queue.EventQueue;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.EventSource;
 import api.services.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by chris on 7/1/16.
+ * Created by chris on 7/21/16.
  */
-public class SynchronousEventQueue implements EventQueue {
-
-    private List<EventQueueInterface> eventQueueInterfaces = new ArrayList<>();
+public abstract class AbstractEventQueue implements EventQueue {
     protected List<EventHandler> eventHandlers = new ArrayList<>();
     protected List<EventSource> eventSources = new ArrayList<>();
-
-    public SynchronousEventQueue() {
-    }
+    private List<EventQueueInterface> eventQueueInterfaces = new ArrayList<>();
 
     @Override
     public void registerService(Service theService) {
@@ -67,13 +64,5 @@ public class SynchronousEventQueue implements EventQueue {
     public void removeEventSource(EventSource theEventSource) {
         eventSources.remove(theEventSource);
         theEventSource.removeListener(this);
-    }
-
-    @Override
-    public synchronized void receiveEvent(Event e) {
-        List<EventHandler> tempEventHandlers = new ArrayList<>(eventHandlers);
-        tempEventHandlers.stream()
-                .filter(handler -> handler.getHandlerCondition().test(e))
-                .forEach(handler -> handler.handleEvent(e));
     }
 }

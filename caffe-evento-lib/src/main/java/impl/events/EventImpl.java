@@ -1,9 +1,8 @@
-package impl.event_queue;
+package impl.events;
 
-import api.event_queue.Event;
+import api.events.Event;
 import com.google.gson.GsonBuilder;
 
-import java.io.Reader;
 import java.time.Instant;
 import java.util.Date;
 import java.util.Map;

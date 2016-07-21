@@ -1,7 +1,10 @@
-package impl.event_queue;
+package impl.events.event_queue.event_queue_interface;
 
-import api.event_queue.*;
+import api.events.*;
+import api.events.event_queue.EventQueue;
 import api.lib.SetLogger;
+import impl.events.EventSourceImpl;
+import impl.events.event_queue.SynchronousEventQueue;
 import impl.lib.AutoRotatedSetLogger;
 
 import java.util.UUID;

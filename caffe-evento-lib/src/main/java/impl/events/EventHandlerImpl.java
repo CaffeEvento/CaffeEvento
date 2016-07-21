@@ -1,7 +1,7 @@
-package impl.event_queue;
+package impl.events;
 
-import api.event_queue.Event;
-import api.event_queue.EventHandler;
+import api.events.Event;
+import api.events.EventHandler;
 import com.google.gson.GsonBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

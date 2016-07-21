@@ -1,6 +1,6 @@
 package impl.services;
 
-import api.event_queue.EventQueueInterface;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.services.Service;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

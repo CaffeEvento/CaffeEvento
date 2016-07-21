@@ -1,10 +1,8 @@
-package impl.event_queue;
+package impl.events;
 
-import api.event_queue.Event;
-import api.event_queue.EventQueue;
-import api.event_queue.EventSource;
-import impl.event_queue.EventImpl;
-import impl.event_queue.EventSourceImpl;
+import api.events.Event;
+import api.events.event_queue.EventQueue;
+import api.events.EventSource;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

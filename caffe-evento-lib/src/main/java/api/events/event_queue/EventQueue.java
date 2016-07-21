@@ -1,7 +1,9 @@
-package api.event_queue;
+package api.events.event_queue;
 
+import api.events.EventSink;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.event_queue.event_queue_interface.EventQueueInterfaceChangedListener;
 import api.services.Service;
-import impl.event_queue.SynchronousEventQueue;
 
 /**
  * Created by chris on 7/10/16.

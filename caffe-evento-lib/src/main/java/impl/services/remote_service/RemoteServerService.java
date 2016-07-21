@@ -1,17 +1,16 @@
 package impl.services.remote_service;
 
-import api.event_queue.Event;
-import api.event_queue.EventHandler;
-import api.event_queue.EventQueueInterface;
-import api.event_queue.EventSource;
-import impl.event_queue.EventQueueInterfaceImpl;
-import impl.event_queue.EventSourceImpl;
+import api.events.Event;
+import api.events.EventHandler;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.EventSource;
+import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
+import impl.events.EventSourceImpl;
 import api.lib.EmbeddedServletServer;
 import impl.lib.servlet_server.EmbeddedServletServerImpl;
 import impl.services.AbstractService;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
-import java.io.IOException;
 import java.util.UUID;
 
 /**

@@ -1,9 +1,7 @@
-package api.event_queue;
+package api.events;
 
-import com.google.gson.GsonBuilder;
-import impl.event_queue.EventHandlerImpl;
+import impl.events.EventHandlerImpl;
 
-import java.net.URI;
 import java.util.UUID;
 import java.util.function.Predicate;
 

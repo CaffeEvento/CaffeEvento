@@ -1,6 +1,6 @@
 package api.services;
 
-import api.event_queue.EventQueueInterface;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
 
 /**
  * Created by chris on 7/13/16.

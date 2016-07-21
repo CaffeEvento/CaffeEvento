@@ -1,10 +1,9 @@
 package impl.services.Log_Service;
 
-import api.event_queue.EventHandler;
-import api.event_queue.EventQueueInterface;
-import api.event_queue.EventSource;
-import impl.event_queue.EventHandlerImpl;
-import impl.event_queue.EventSourceImpl;
+import api.events.EventHandler;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.EventSource;
+import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
 
 /** TODO:Pair this Service with a logging utils

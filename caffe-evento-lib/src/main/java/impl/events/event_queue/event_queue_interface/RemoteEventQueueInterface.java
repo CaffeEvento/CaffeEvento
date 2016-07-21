@@ -1,13 +1,12 @@
-package impl.event_queue;
+package impl.events.event_queue.event_queue_interface;
 
-import api.event_queue.Event;
-import api.event_queue.EventHandler;
-import api.event_queue.EventSource;
+import api.events.EventHandler;
+import api.events.EventSource;
 import api.lib.EmbeddedServletServer;
+import impl.events.EventSourceImpl;
+import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
 import impl.lib.servlet_server.EmbeddedServletServerImpl;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-
-import java.io.IOException;
 
 /**
  * TODO: this is all probably mostly useless

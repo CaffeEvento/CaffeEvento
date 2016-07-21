@@ -1,8 +1,7 @@
-package impl.event_queue;
+package impl.events;
 
-import api.event_queue.Event;
-import api.event_queue.EventHandler;
-import org.easymock.EasyMock;
+import api.events.Event;
+import api.events.EventHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.annotation.Mock;

@@ -1,7 +1,7 @@
 package test_util;
 
-import api.event_queue.*;
-import impl.event_queue.EventHandlerImpl;
+import api.events.*;
+import impl.events.EventHandlerImpl;
 
 import java.util.ArrayList;
 import java.util.List;

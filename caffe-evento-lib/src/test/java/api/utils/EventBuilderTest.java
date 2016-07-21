@@ -1,6 +1,6 @@
 package api.utils;
 
-import api.event_queue.Event;
+import api.events.Event;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

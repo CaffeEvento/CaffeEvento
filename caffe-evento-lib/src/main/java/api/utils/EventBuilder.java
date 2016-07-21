@@ -1,8 +1,8 @@
 package api.utils;
 
-import api.event_queue.Event;
-import api.event_queue.EventSource;
-import impl.event_queue.EventImpl;
+import api.events.Event;
+import api.events.EventSource;
+import impl.events.EventImpl;
 
 import java.util.function.Consumer;
 

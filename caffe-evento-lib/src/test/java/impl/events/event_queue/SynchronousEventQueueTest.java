@@ -1,11 +1,16 @@
-package impl.event_queue;
+package impl.events.event_queue;
 
+import api.events.event_queue.EventQueue;
 import com.google.common.collect.Lists;
-import api.event_queue.*;
-import api.event_queue.EventQueueInterface;
+import api.events.*;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import impl.events.EventSourceImpl;
+import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
+import impl.events.event_queue.SynchronousEventQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.powermock.api.easymock.PowerMock;
 import org.powermock.api.easymock.annotation.Mock;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -41,7 +46,7 @@ public class SynchronousEventQueueTest {
     @Before
     public void setUp() {
         eventHandlers = Lists.newArrayList(createMock(EventHandler.class), createMock(EventHandler.class));
-        eventSources = Lists.newArrayList(createMock(EventSourceImpl.class), createMock(EventSourceImpl.class));
+        eventSources = Lists.newArrayList(PowerMock.createMock(EventSourceImpl.class), createMock(EventSourceImpl.class));
     }
 
     private void prepareService(EventQueueInterface theEventQueueInterface) {

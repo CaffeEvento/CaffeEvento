@@ -1,4 +1,4 @@
-package api.event_queue;
+package api.events;
 
 import java.util.UUID;
 

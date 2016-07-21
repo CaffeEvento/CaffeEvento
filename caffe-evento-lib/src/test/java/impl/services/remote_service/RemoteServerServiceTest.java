@@ -1,17 +1,15 @@
 package impl.services.remote_service;
 
-import api.event_queue.*;
+import api.events.*;
+import api.events.event_queue.EventQueue;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.lib.EmbeddedServletServer;
 import api.utils.EventBuilder;
-import impl.event_queue.EventQueueInterfaceImpl;
-import impl.event_queue.EventSourceImpl;
-import impl.event_queue.SynchronousEventQueue;
+import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
+import impl.events.EventSourceImpl;
+import impl.events.event_queue.SynchronousEventQueue;
 import impl.lib.servlet_server.EmbeddedServletServerImpl;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
@@ -22,8 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 import test_util.EventCollector;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

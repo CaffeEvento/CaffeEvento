@@ -1,8 +1,10 @@
-package impl.event_queue;
+package impl.events.event_queue.event_queue_interface;
 
-import api.event_queue.*;
-import impl.event_queue.EventQueueInterfaceImpl;
-import impl.event_queue.EventSourceImpl;
+import api.events.*;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.events.event_queue.event_queue_interface.EventQueueInterfaceChangedListener;
+import impl.events.EventSourceImpl;
+import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

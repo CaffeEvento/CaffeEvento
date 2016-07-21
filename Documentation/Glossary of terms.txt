@@ -8,4 +8,4 @@ Glossary of Terms:
 * Engine: Contains the application. Has an event queue and registers eventQueueInterfaces to the event queue. -Current plan is to only allow eventQueueInterfaces to be added and removed.
 
 Deprecated
-* Actuator: Special case of a eventQueueInterface where sending it an event can cause it to take an action on the real world. Usually only sends confirmation/completion api.event_queue.
+* Actuator: Special case of a eventQueueInterface where sending it an event can cause it to take an action on the real world. Usually only sends confirmation/completion api.events.

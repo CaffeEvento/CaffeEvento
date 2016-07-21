@@ -1,8 +1,11 @@
 package impl.services.request_service;
 
-import api.event_queue.*;
-import impl.event_queue.*;
-import impl.services.request_service.RequestService;
+import api.events.*;
+import api.events.event_queue.EventQueue;
+import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import impl.events.*;
+import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
+import impl.events.event_queue.SynchronousEventQueue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

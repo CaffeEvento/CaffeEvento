@@ -1,6 +1,6 @@
-package impl.event_queue;
+package impl.events;
 
-import api.event_queue.Event;
+import api.events.Event;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

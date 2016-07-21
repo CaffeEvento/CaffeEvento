@@ -1,4 +1,7 @@
-package api.event_queue;
+package api.events.event_queue.event_queue_interface;
+
+import api.events.EventHandler;
+import api.events.EventSource;
 
 import java.util.List;
 import java.util.UUID;
