@@ -15,8 +15,10 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import test_util.EventCollector;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
 
 import static java.lang.Thread.sleep;
@@ -30,7 +32,7 @@ import static org.junit.Assert.*;
 public class SchedulerServiceTest {
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
-    private SchedulerService instance = new SchedulerService(eventQueueInterface);
+    private SchedulerService instance = new SchedulerService(eventQueueInterface, Clock.fixed(Instant.now(), ZoneId.systemDefault()));
     private EventCollector eventCollector = new EventCollector();
     private EventSource eventGenerator = new EventSourceImpl();
 

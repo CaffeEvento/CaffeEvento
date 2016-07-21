@@ -11,11 +11,15 @@ import impl.services.AbstractService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -65,10 +69,16 @@ public class SchedulerService extends AbstractService {
 
     private final EventSource eventGenerator = new EventSourceImpl();
     private final Map<UUID, Scheduler> activeSchedulers= new ConcurrentHashMap<>();
+    private final Clock clock;
 
-    public SchedulerService(EventQueueInterface eventQueueInterface)
+    public SchedulerService(EventQueueInterface eventQueueInterface) {
+        this(eventQueueInterface, Clock.systemUTC());
+    }
+
+    public SchedulerService(EventQueueInterface eventQueueInterface, Clock clock)
     {
         super(eventQueueInterface);
+        this.clock = clock;
         getEventQueueInterface().addEventSource(eventGenerator);
 
         // Add the Schedule event handler
@@ -139,10 +149,10 @@ public class SchedulerService extends AbstractService {
             // break out all the optional field
             try {
                 if (sourceEvent.getEventField(END_TIME) != null) {
-                    maxDelayToFinish = Duration.between(Instant.now(), (new SimpleDateFormat(DATE_FORMAT).parse(sourceEvent.getEventField(END_TIME))).toInstant()).toMillis();
+                    maxDelayToFinish = Duration.between(Instant.now(clock), (new SimpleDateFormat(DATE_FORMAT).parse(sourceEvent.getEventField(END_TIME))).toInstant()).toMillis();
                 }
                 if (sourceEvent.getEventField(START_TIME) != null) {
-                    delay = Duration.between(Instant.now(), (new SimpleDateFormat(DATE_FORMAT).parse(sourceEvent.getEventField(START_TIME))).toInstant()).toMillis();
+                    delay = Duration.between(Instant.now(clock), (new SimpleDateFormat(DATE_FORMAT).parse(sourceEvent.getEventField(START_TIME))).toInstant()).toMillis();
                 }
                 if (sourceEvent.getEventField(DELAY) != null) {
                     delay = Long.max(Duration.parse(sourceEvent.getEventField(DELAY)).toMillis(), delay);
@@ -163,13 +173,17 @@ public class SchedulerService extends AbstractService {
             if (maxDelayToFinish > delay) {
                 if (sourceEvent.getEventField(REPEAT_PERIOD) != null) {
                     // this launches the repeating event
-                    fireScheduledEventHandle =
-                            eventTimer.scheduleAtFixedRate(
-                                    ()-> eventGenerator.registerEvent(new EventImpl(scheduledEvent)),
-                                    delay,
-                                    period,
-                                    TimeUnit.MILLISECONDS
-                            );
+                    try {
+                        fireScheduledEventHandle =
+                                eventTimer.scheduleAtFixedRate(
+                                        () -> eventGenerator.registerEvent(new EventImpl(scheduledEvent)),
+                                        delay,
+                                        period,
+                                        TimeUnit.MILLISECONDS
+                                );
+                    }catch(IllegalArgumentException e){
+                        throw new SchedulerException("Repeat Period invalid: " + Duration.of(period, ChronoUnit.MILLIS).toString() + "\nShould be: " + sourceEvent.getEventField(REPEAT_PERIOD));
+                    }
                 } else {
                     // this launches on a non-repeating event
                     fireScheduledEventHandle =

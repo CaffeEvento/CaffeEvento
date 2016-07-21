@@ -4,6 +4,7 @@ import api.events.Event;
 import api.events.EventSource;
 import api.events.event_queue.EventQueue;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.utils.EventBuilder;
 import impl.events.EventImpl;
 import impl.events.EventSourceImpl;
 import impl.events.event_queue.SynchronousEventQueue;
@@ -14,8 +15,16 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import test_util.EventCollector;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
+
+import static java.lang.Thread.sleep;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by eric on 7/21/16.
@@ -24,7 +33,7 @@ import java.util.Map;
 public class SchedulerServiceMalformattedTest {
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
-    private SchedulerService instance = new SchedulerService(eventQueueInterface);
+    private SchedulerService instance = new SchedulerService(eventQueueInterface, Clock.fixed(Instant.now(), ZoneId.systemDefault()));
     private EventCollector eventCollector = new EventCollector();
     private EventSource eventGenerator = new EventSourceImpl();
 
@@ -119,6 +128,19 @@ public class SchedulerServiceMalformattedTest {
         //Clunky at best
         Map<String, String> params = new HashMap<>();
         params.put(SchedulerService.REPEAT_PERIOD, "XD");
+        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        eventGenerator.registerEvent(schedulerEvent);
+    }
+
+    @Test
+    //this test sends a negative period to the scheduler which should cause an error to be logged
+    public void testInvalidPeriod() {
+        Event scheduledEvent = EventBuilder.create()
+                .name("Test Schedule Doer")
+                .type("TestReq")
+                .build();
+        Map<String, String> params = new HashMap<>();
+        params.put(SchedulerService.REPEAT_PERIOD, Duration.ZERO.minus(100, MILLIS).toString());
         Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
     }
