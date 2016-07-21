@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 /**
  * Created by chris on 7/2/16.
@@ -92,7 +93,13 @@ public class RequestService extends AbstractService {
             }
 
             requestId = UUID.fromString(sourceEvent.getEventField(REQUEST_ID_FIELD));
-            Event fufillmentEvent = Event.decodeEvent(sourceEvent.getEventField(REQUEST_EVENT_FUFILLMENT));
+            Event fufillmentEvent = Event.decodeEvent(sourceEvent.getEventField(REQUEST_EVENT_FUFILLMENT))
+                    .orElseThrow(new Supplier<RequestException>() {
+                        @Override
+                        public RequestException get() {
+                            return (new RequestException("Invalid request Fufillment_Event"));
+                        }
+                    });
             fufillmentEvent.setEventField(REQUEST_ID_FIELD, requestId.toString());
 
             // Event handler success

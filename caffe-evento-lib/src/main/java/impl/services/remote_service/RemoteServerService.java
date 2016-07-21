@@ -52,6 +52,7 @@ public final class RemoteServerService extends AbstractService {
                         .removeEventHandler(UUID.fromString("eventHandlerId")))
                 .build());
 
-        server.addService(name, serverId, "/receiveEvent", (req, res) -> eventGenerator.registerEvent(Event.decodeEvent(req.getReader())));
+        // TODO: confirm this is the desired behavior ESP with regards to "Event.decodeEvent(req.getReader()).orElse(null)"
+        server.addService(name, serverId, "/receiveEvent", (req, res) -> eventGenerator.registerEvent(Event.decodeEvent(req.getReader()).orElse(null)));
     }
 }

@@ -6,6 +6,7 @@ import impl.events.EventImpl;
 import java.io.Reader;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -33,11 +34,19 @@ public interface Event {
 
     String encodeEvent();
 
-    public static Event decodeEvent(String theEvent) {
-        return (new GsonBuilder()).create().fromJson(theEvent, EventImpl.class);
+    public static Optional<Event> decodeEvent(String theEvent) {
+        try {
+            return Optional.of((new GsonBuilder()).create().fromJson(theEvent, EventImpl.class));
+        } catch (IllegalStateException e) {
+            return Optional.empty();
+        }
     }
 
-    public static Event decodeEvent(Reader theEvent) {
-        return (new GsonBuilder()).create().fromJson(theEvent, EventImpl.class);
+    public static Optional<Event> decodeEvent(Reader theEvent) {
+        try {
+            return Optional.of((new GsonBuilder()).create().fromJson(theEvent, EventImpl.class));
+        } catch (IllegalStateException e) {
+            return Optional.empty();
+        }
     }
 }

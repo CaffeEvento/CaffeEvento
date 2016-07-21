@@ -59,7 +59,7 @@ public class EventImplTest {
         instance.setEventField("EventField1", "EventField1");
         instance.setEventField("EventField2", "EventField2");
         String encoded = instance.encodeEvent();
-        Event decoded  = Event.decodeEvent(encoded);
+        Event decoded  = Event.decodeEvent(encoded).orElse(null);
         assertEventsEqual(instance, decoded);
     }
 

@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.*;
@@ -73,8 +74,9 @@ public class RemoteServerServiceTest {
         setUpServers();
         sourceServer.start();
         localServer.start();
+        //TODO: confirm whether behavior of "Event.decodeEvent(req.getReader()).orElse(null)" matches desired behavior
         receivingService.addService("Test Service", receivingId, "/receiveEvent",
-                (req, res) -> receivedEvents.add(Event.decodeEvent(req.getReader())));
+                (req, res) -> receivedEvents.add(Event.decodeEvent(req.getReader()).orElse(null)));
         Thread.sleep(100);
     }
 

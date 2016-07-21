@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 /**
  * This service takes a schedule event and generates scheduled events
@@ -127,7 +128,13 @@ public class SchedulerService extends AbstractService {
             }
 
             this.schedulerId = UUID.fromString(sourceEvent.getEventField(SCHEDULE_ID_FIELD));
-            scheduledEvent = Event.decodeEvent(sourceEvent.getEventField(SCHEDULED_EVENT_ACTION));
+            scheduledEvent = Event.decodeEvent(sourceEvent.getEventField(SCHEDULED_EVENT_ACTION))
+                    .orElseThrow(new Supplier<SchedulerException>() {
+                        @Override
+                        public SchedulerException get() {
+                            return (new SchedulerException("Malformatted Event to Schedule"));
+                        }
+                    });
 
             // break out all the optional field
             try {
