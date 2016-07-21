@@ -30,9 +30,10 @@ import static org.junit.Assert.*;
  */
 @RunWith(PowerMockRunner.class)
 public class SchedulerServiceTest {
+    private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
-    private SchedulerService instance = new SchedulerService(eventQueueInterface, Clock.fixed(Instant.now(), ZoneId.systemDefault()));
+    private SchedulerService instance = new SchedulerService(eventQueueInterface, clock);
     private EventCollector eventCollector = new EventCollector();
     private EventSource eventGenerator = new EventSourceImpl();
 
@@ -50,7 +51,7 @@ public class SchedulerServiceTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.START_TIME, Date.from(Instant.now().plus(200, MILLIS)).toString());
+        params.put(SchedulerService.START_TIME, Date.from(Instant.now(clock).plus(200, MILLIS)).toString());
         Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
 
         eventGenerator.registerEvent(schedulerEvent);
