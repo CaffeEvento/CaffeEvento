@@ -119,7 +119,8 @@ public class RequestService extends AbstractService {
                             if (fufillmentAttempts.incrementAndGet() >
                                     Optional.ofNullable(sourceEvent.getEventField(REQUEST_MAX_RETRIES_FIELD))
                                             .map(Integer::decode)
-                                            .orElse(MAX_RETRIES)) {
+                                            .orElse(MAX_RETRIES))
+                            {
                                 log.error("Could not fufill request " + requestId + ".\n" +
                                         "Induced by " + sourceEvent.getEventName() + ": " + sourceEvent.getEventId());
                                 activeRequests.remove(requestId);
@@ -130,8 +131,8 @@ public class RequestService extends AbstractService {
                         } catch (NumberFormatException error) {
                             log.error("Could not fufill request " + requestId + ".\n" +
                                     "Induced by " + sourceEvent.getEventName() + ": " + sourceEvent.getEventId() + "\n" +
-                                    "Unable to determine configured number of retries: Defaulting to none");
-                            //error.printStackTrace();
+                                    "Unable to determine configured number of retries: Defaulting to none\nMaxRetries: " + sourceEvent.getEventField(REQUEST_MAX_RETRIES_FIELD));
+                            error.printStackTrace();
                             activeRequests.remove(requestId);
                             requestEventHandlers.forEach(e -> getEventQueueInterface().removeEventHandler(e));
                         }

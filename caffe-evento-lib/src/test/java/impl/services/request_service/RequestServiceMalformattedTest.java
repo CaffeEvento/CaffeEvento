@@ -13,6 +13,10 @@ import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 import test_util.EventCollector;
 
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Created by eric on 7/21/16.
@@ -44,5 +48,22 @@ public class RequestServiceMalformattedTest {
         RequestService.generateRequestEvent("Bad requestId Request", EventBuilder.create().build())
                 .data(RequestService.REQUEST_ID_FIELD, "XD")
                 .send(eventGenerator);
+    }
+
+    @Test
+    public void testFailuresConfiguredToInvalid(){
+        Event fufillerEvent = new EventImpl("Test Request Doer", "TestReq");
+        Event requestEvent = RequestService.generateRequestEvent("Test Request", fufillerEvent)
+                .data(RequestService.REQUEST_MAX_RETRIES_FIELD, "XD")
+                .build();
+        UUID requestId = UUID.fromString(requestEvent.getEventField(RequestService.REQUEST_ID_FIELD));
+        eventGenerator.registerEvent(requestEvent);
+        assertEquals(1, instance.numberOfActiveRequests());
+        assertEquals(1, eventCollector.findEventsWithName("Test Request Doer").size());
+
+        RequestService.generateRequestFailedEvent("Final Request Failed :-(", requestId).send(eventGenerator);
+
+        assertEquals(0, instance.numberOfActiveRequests());
+        assertEquals(1, eventCollector.findEventsWithName("Test Request Doer").size());
     }
 }
