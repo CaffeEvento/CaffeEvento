@@ -6,6 +6,7 @@ import api.events.EventSource;
 import api.lib.EmbeddedServletServer;
 import api.lib.ServerHandler;
 import api.utils.EventBuilder;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import impl.events.EventSourceImpl;
@@ -13,6 +14,7 @@ import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
 import impl.lib.JSONUtils;
 import impl.lib.servlet_server.EmbeddedServletServerImpl;
 import impl.services.remote_service.RemoteServerService;
+import impl.utils.CEHttpUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -23,6 +25,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,17 +48,23 @@ public class RemoteEventQueueInterface extends BufferedEventQueueInterface {
         server.addService(serviceName, serverId, "/receiveEvent", (req, res) -> Event.decodeEvent(req.getReader()).ifPresent(this::receiveEvent));
     }
 
+    public UUID getServerId() {
+        return serverId;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
+    }
+
     public synchronized void connectToServer(String serviceName, String remoteIp) throws IOException, RemoteEventQueueInterfaceException {
         if(isConnected) {
             disconnectFromServer();
         }
 
         // Connect to server to get remote service id
-        HttpGet getIds = new HttpGet(remoteIp + "/services");
-        HttpResponse response = client.execute(getIds);
-        JsonObject jsonResponse = JSONUtils.convertToJsonObject(new InputStreamReader(response.getEntity().getContent()));
+        JsonObject services = CEHttpUtils.doGetJson(remoteIp + "/services", Collections.emptyMap());
 
-        String id = Optional.ofNullable(jsonResponse.get(serviceName)).map(JsonElement::getAsString)
+        String id = Optional.ofNullable(services.get(serviceName)).map(JsonElement::getAsString)
                 .orElseThrow(() -> new RemoteEventQueueInterfaceException("No service with name: " + serviceName));
         remoteServiceId = UUID.fromString(id);
         remoteEventReceiver = remoteIp + "/" + remoteServiceId + "/receiveEvent";
@@ -124,9 +133,7 @@ public class RemoteEventQueueInterface extends BufferedEventQueueInterface {
         HttpPost post = new HttpPost(remoteEventReceiver);
         String eventJson = e.encodeEvent();
         try {
-            post.addHeader("content-type", "text/json");
-            post.setEntity(new StringEntity(eventJson));
-            client.execute(post);
+            CEHttpUtils.doPost(remoteEventReceiver, eventJson, ImmutableMap.of("content-type", "text/json"));
         } catch (IOException ex) {
             log.error("Unable to send event to remote: " + eventJson, ex);
         }
