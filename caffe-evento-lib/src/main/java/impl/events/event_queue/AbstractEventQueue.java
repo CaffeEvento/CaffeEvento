@@ -13,9 +13,17 @@ import java.util.List;
  * Created by chris on 7/21/16.
  */
 public abstract class AbstractEventQueue implements EventQueue {
-    protected List<EventHandler> eventHandlers = new ArrayList<>();
-    protected List<EventSource> eventSources = new ArrayList<>();
+    private List<EventHandler> eventHandlers = new ArrayList<>();
+    private List<EventSource> eventSources = new ArrayList<>();
     private List<EventQueueInterface> eventQueueInterfaces = new ArrayList<>();
+
+    protected List<EventHandler> getEventHandlers() {
+        return new ArrayList<>(eventHandlers);
+    }
+
+    protected List<EventSource> getEventSources() {
+        return new ArrayList<>();
+    }
 
     @Override
     public void registerService(Service theService) {

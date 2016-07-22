@@ -16,8 +16,7 @@ public class SynchronousEventQueue extends AbstractEventQueue {
 
     @Override
     public synchronized void receiveEvent(Event e) {
-        List<EventHandler> tempEventHandlers = new ArrayList<>(eventHandlers);
-        tempEventHandlers.stream()
+        getEventHandlers().stream()
                 .filter(handler -> handler.getHandlerCondition().test(e))
                 .forEach(handler -> handler.handleEvent(e));
     }
