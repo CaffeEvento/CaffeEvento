@@ -20,6 +20,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static java.lang.Thread.sleep;
 import static java.time.temporal.ChronoUnit.MILLIS;
@@ -31,9 +33,10 @@ import static org.junit.Assert.*;
 @RunWith(PowerMockRunner.class)
 public class SchedulerServiceTest {
     private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
-    private SchedulerService instance = new SchedulerService(eventQueueInterface, clock);
+    private SchedulerService instance = new SchedulerService(eventQueueInterface, clock, executorService);
     private EventCollector eventCollector = new EventCollector();
     private EventSource eventGenerator = new EventSourceImpl();
 
@@ -103,5 +106,18 @@ public class SchedulerServiceTest {
         Thread.sleep(100);
         assertEquals("Event fired when canceled2", 0, eventCollector.findEventsWithName("Test Schedule Doer").size());
         assertEquals("Canceled Event did not fire", 1, eventCollector.findEventsWithType(SchedulerService.SCHEDULE_EVENT_CANCELED).size());
+    }
+
+    @Test
+    // this test literally just checks to see if things break when supplying multiple scheduler events
+    public void testMultipleSchedulerEvents() {
+        Event scheduledEvent = new EventImpl("Test Schedule Doer", "TestReq");
+
+        Map<String, String> params = new HashMap<>();
+        params.put(SchedulerService.DELAY, Duration.ZERO.plus(200, MILLIS).toString());
+        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        for(int i = 0;i<200;i++) {
+            eventGenerator.registerEvent(new EventImpl(schedulerEvent));
+        }
     }
 }

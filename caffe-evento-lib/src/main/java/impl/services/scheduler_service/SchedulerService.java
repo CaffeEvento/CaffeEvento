@@ -70,15 +70,21 @@ public class SchedulerService extends AbstractService {
     private final EventSource eventGenerator = new EventSourceImpl();
     private final Map<UUID, Scheduler> activeSchedulers= new ConcurrentHashMap<>();
     private final Clock clock;
+    private final ScheduledExecutorService eventTimer;
 
     public SchedulerService(EventQueueInterface eventQueueInterface) {
         this(eventQueueInterface, Clock.systemUTC());
     }
 
-    public SchedulerService(EventQueueInterface eventQueueInterface, Clock clock)
+    public SchedulerService(EventQueueInterface eventQueueInterface, Clock clock) {
+        this(eventQueueInterface, clock, Executors.newScheduledThreadPool(1));
+    }
+
+    public SchedulerService(EventQueueInterface eventQueueInterface, Clock clock, ScheduledExecutorService executorService)
     {
         super(eventQueueInterface);
         this.clock = clock;
+        this.eventTimer = executorService;
         getEventQueueInterface().addEventSource(eventGenerator);
 
         // Add the Schedule event handler
@@ -121,7 +127,6 @@ public class SchedulerService extends AbstractService {
         private final UUID schedulerId;
         //TODO: Prevent concurrent modification of SchedulerEventHandlers
         private List<EventHandler> SchedulerEventHandlers = new ArrayList<>();
-        private final ScheduledExecutorService eventTimer = Executors.newScheduledThreadPool(1);
         private Event scheduledEvent;
 
         public Scheduler(Event sourceEvent) throws SchedulerException {
