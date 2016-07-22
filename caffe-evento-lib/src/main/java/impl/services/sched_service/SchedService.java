@@ -1,4 +1,4 @@
-package impl.services.scheduler_service;
+package impl.services.sched_service;
 
 import api.events.Event;
 import api.events.EventHandler;
@@ -11,7 +11,6 @@ import impl.services.AbstractService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
@@ -19,10 +18,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Supplier;
 
 /**
  * This service takes a schedule event and generates scheduled events
@@ -34,7 +31,7 @@ import java.util.function.Supplier;
 // TODO: Define DATE_FORMAT Somewhere more public
 // TODO: Add ability to limit the maximum number of times that ScheduledEvent occurs when repeating event
 
-public class SchedulerService extends AbstractService {
+public class SchedService extends AbstractService {
     public static final String DATE_FORMAT = "EEE MMM dd hh:mm:ss zzz yyyy";
 
     /* Schedule Event Types */
@@ -51,7 +48,7 @@ public class SchedulerService extends AbstractService {
     /* Optional Fields */
     //sets the time of the first occurence of ScheduledEvent, if not present then ScheduledEvent is Scheduled to occur immediately
     public static final String START_TIME = "SCHEDULED_TIME";
-    //sets minimum time to first instance from when SchedulerService recieves the Event, overrides ScheduledTime if later.
+    //sets minimum time to first instance from when SchedService recieves the Event, overrides ScheduledTime if later.
     public static final String DELAY = "DELAY";
     //sets the period between event recurrences, if not specified the ScheduledEvent does not repeat
     public static final String REPEAT_PERIOD = "PERIOD";
@@ -65,22 +62,22 @@ public class SchedulerService extends AbstractService {
     /* (optional) Fields Added to ScheduledEvent */
     public static final String SCHEDULED_EVENT_ITERATION = "SCHEDULED_EVENT_ITERATION";
 
-    private static final Log log = LogFactory.getLog(SchedulerService.class);
+    private static final Log log = LogFactory.getLog(SchedService.class);
 
     private final EventSource eventGenerator = new EventSourceImpl();
     private final Map<UUID, Scheduler> activeSchedulers= new ConcurrentHashMap<>();
     private final Clock clock;
     private final ScheduledExecutorService eventTimer;
 
-    public SchedulerService(EventQueueInterface eventQueueInterface) {
+    public SchedService(EventQueueInterface eventQueueInterface) {
         this(eventQueueInterface, Clock.systemUTC());
     }
 
-    public SchedulerService(EventQueueInterface eventQueueInterface, Clock clock) {
+    public SchedService(EventQueueInterface eventQueueInterface, Clock clock) {
         this(eventQueueInterface, clock, Executors.newScheduledThreadPool(1));
     }
 
-    public SchedulerService(EventQueueInterface eventQueueInterface, Clock clock, ScheduledExecutorService executorService)
+    public SchedService(EventQueueInterface eventQueueInterface, Clock clock, ScheduledExecutorService executorService)
     {
         super(eventQueueInterface);
         this.clock = clock;
@@ -94,7 +91,7 @@ public class SchedulerService extends AbstractService {
                     try {
                         Scheduler theScheduler = new Scheduler(theEvent);
                         activeSchedulers.put(theScheduler.getSchedulerId(), theScheduler);
-                    } catch (SchedulerException e) {
+                    } catch (SchedException e) {
                         log.error("could not schedule a timer for the event.", e);
                         e.printStackTrace();
                     }
@@ -129,27 +126,27 @@ public class SchedulerService extends AbstractService {
         private List<EventHandler> SchedulerEventHandlers = new ArrayList<>();
         private Event scheduledEvent;
 
-        public Scheduler(Event sourceEvent) throws SchedulerException {
+        public Scheduler(Event sourceEvent) throws SchedException {
             final ScheduledFuture<?> fireScheduledEventHandle;
             long delay = Long.MIN_VALUE;
             long maxDelayToFinish = Long.MAX_VALUE;
             long period = Long.MAX_VALUE;
 
             if (sourceEvent.getEventField(SCHEDULE_ID_FIELD) == null) {
-                throw new SchedulerException("No Scheduler ID field.");
+                throw new SchedException("No Scheduler ID field.");
             }
             if (sourceEvent.getEventField(SCHEDULED_EVENT_ACTION) == null) {
-                throw new SchedulerException("No Event to Schedule");
+                throw new SchedException("No Event to Schedule");
             }
 
             try {
                 this.schedulerId = UUID.fromString(sourceEvent.getEventField(SCHEDULE_ID_FIELD));
             } catch(IllegalArgumentException e) {
-                throw new SchedulerException("Recieved invalid Scheduler ID field, unable to convert to UUID: " + sourceEvent.getEventField(SCHEDULE_ID_FIELD));
+                throw new SchedException("Recieved invalid Scheduler ID field, unable to convert to UUID: " + sourceEvent.getEventField(SCHEDULE_ID_FIELD));
             }
 
             scheduledEvent = Event.decodeEvent(sourceEvent.getEventField(SCHEDULED_EVENT_ACTION))
-                    .orElseThrow(()-> new SchedulerException("Malformatted Event to Schedule"));
+                    .orElseThrow(()-> new SchedException("Malformatted Event to Schedule"));
 
             // break out all the optional field
             try {
@@ -169,9 +166,9 @@ public class SchedulerService extends AbstractService {
                     period =  Duration.parse(sourceEvent.getEventField(REPEAT_PERIOD)).toMillis();
                 }
             } catch (ParseException e) {
-                throw new SchedulerException("Could not parse Absolute Time Field");
+                throw new SchedException("Could not parse Absolute Time Field");
             } catch (DateTimeParseException e) {
-                throw new SchedulerException("Could not parse Duration Field");
+                throw new SchedException("Could not parse Duration Field");
             }
 
             // if the event can still happen schedule the event to occur
@@ -187,7 +184,7 @@ public class SchedulerService extends AbstractService {
                                         TimeUnit.MILLISECONDS
                                 );
                     }catch(IllegalArgumentException e){
-                        throw new SchedulerException("Repeat Period invalid: " + Duration.of(period, ChronoUnit.MILLIS).toString() + "\nShould be: " + sourceEvent.getEventField(REPEAT_PERIOD));
+                        throw new SchedException("Repeat Period invalid: " + Duration.of(period, ChronoUnit.MILLIS).toString() + "\nShould be: " + sourceEvent.getEventField(REPEAT_PERIOD));
                     }
                 } else {
                     // this launches on a non-repeating event
@@ -205,8 +202,8 @@ public class SchedulerService extends AbstractService {
 
                 // add the canceled request handler
                 EventHandler canceled = EventHandler.create()
-                        .eventType(SchedulerService.SCHEDULE_EVENT_CANCEL_TYPE)
-                        .eventData(SchedulerService.SCHEDULE_ID_FIELD, schedulerId.toString())
+                        .eventType(impl.services.sched_service.SchedService.SCHEDULE_EVENT_CANCEL_TYPE)
+                        .eventData(impl.services.sched_service.SchedService.SCHEDULE_ID_FIELD, schedulerId.toString())
                         .eventHandler(event -> {
                             fireScheduledEventHandle.cancel(true); // this line actually stops the ScheduledEvent
                             createSchedulerCanceledEvent().send(eventGenerator);

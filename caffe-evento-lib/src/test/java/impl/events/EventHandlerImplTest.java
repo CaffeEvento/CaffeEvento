@@ -29,7 +29,7 @@ public class EventHandlerImplTest {
     // handler, so no trickery can be made, I wrote this to execute an event handler on both the local
     // and the remote in one fell swoop
     public void executeHandlerTest(EventHandler original, Consumer<EventHandler> handlerTest) {
-        EventHandler copy = EventHandler.fromJson(original.encodeToJson());
+        EventHandler copy = EventHandler.fromJson(original.encodeToJson()).orElse(null);
 
         handlerTest.accept(original);
         handlerTest.accept(copy);
@@ -145,7 +145,7 @@ public class EventHandlerImplTest {
     @Test
     public void testJsonEventHandlerTransmission() {
         EventHandler original = EventHandler.create().eventName("NAME").eventType("TYPE").eventData("DATA_KEY", "DATA_VALUE").build();
-        EventHandler copied = EventHandler.fromJson(original.encodeToJson());
+        EventHandler copied = EventHandler.fromJson(original.encodeToJson()).orElse(null);
         expect(event.getEventName()).andReturn("NAME").anyTimes();
         expect(event.getEventType()).andReturn("TYPE").anyTimes();
         expect(event.getEventField("DATA_KEY")).andReturn("DATA_VALUE").anyTimes();
@@ -161,7 +161,7 @@ public class EventHandlerImplTest {
     public void testJsonEventHandlerTransmissionNonMatchingEvent() {
         EventHandler original = EventHandler.create().eventName("NAME").eventType("TYPE").eventData("DATA_KEY", "DATA_VALUE").build();
         String eventHandlerJson = original.encodeToJson();
-        EventHandler copied = EventHandler.fromJson(eventHandlerJson);
+        EventHandler copied = EventHandler.fromJson(eventHandlerJson).orElse(null);
         expect(event.getEventName()).andReturn("NAME1").anyTimes();
         expect(event.getEventType()).andReturn("TYPE").anyTimes();
         expect(event.getEventField("DATA_KEY")).andReturn("DATA_VALUE").anyTimes();
@@ -177,7 +177,7 @@ public class EventHandlerImplTest {
     public void testEventHandlerJsonTransmissionDataEqual() {
         EventHandler original = EventHandler.create().eventName("NAME").eventType("TYPE").eventData("DATA_KEY", "DATA_VALUE").build();
         String eventHandlerJson = original.encodeToJson();
-        EventHandler copied = EventHandler.fromJson(eventHandlerJson);
+        EventHandler copied = EventHandler.fromJson(eventHandlerJson).orElse(null);
         String copiedJson = copied.encodeToJson();
         assertEquals(eventHandlerJson, copiedJson);
     }

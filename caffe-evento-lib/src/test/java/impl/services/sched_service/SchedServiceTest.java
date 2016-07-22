@@ -1,4 +1,4 @@
-package impl.services.scheduler_service;
+package impl.services.sched_service;
 
 import api.events.Event;
 import api.events.event_queue.EventQueue;
@@ -9,6 +9,8 @@ import impl.events.EventImpl;
 import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
 import impl.events.EventSourceImpl;
 import impl.events.event_queue.SynchronousEventQueue;
+import org.easymock.EasyMock;
+import org.easymock.MockType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,12 +33,14 @@ import static org.junit.Assert.*;
  * Created by eric on 7/15/16.
  */
 @RunWith(PowerMockRunner.class)
-public class SchedulerServiceTest {
+public class SchedServiceTest {
     private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
-    private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+    private ScheduledExecutorService executorService =
+            //EasyMock.createMock(MockType.DEFAULT, ScheduledExecutorService.class);
+            Executors.newScheduledThreadPool(1);
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
-    private SchedulerService instance = new SchedulerService(eventQueueInterface, clock, executorService);
+    private SchedService instance;
     private EventCollector eventCollector = new EventCollector();
     private EventSource eventGenerator = new EventSourceImpl();
 
@@ -45,17 +49,18 @@ public class SchedulerServiceTest {
         eventQueue.addEventQueueInterface(eventQueueInterface);
         eventQueue.addEventHandler(eventCollector.getHandler());
         eventQueue.addEventSource(eventGenerator);
+        instance = new SchedService(eventQueueInterface, clock, executorService);
     }
 
-    //TODO: Clean up either testScheduleEvent so that it behaves consistently, or recode SchedulerService to provide more consistent behavior
+    //TODO: Clean up either testScheduleEvent so that it behaves consistently, or recode SchedService to provide more consistent behavior
     @Test
     public void testScheduleEvent() throws Exception {
         Event scheduledEvent = new EventImpl("Test Schedule Doer", "TestReq");
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.START_TIME, Date.from(Instant.now(clock).plus(200, MILLIS)).toString());
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.START_TIME, Date.from(Instant.now(clock).plus(200, MILLIS)).toString());
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
 
         eventGenerator.registerEvent(schedulerEvent);
         assertEquals("unregistered scheduler too early", 1, instance.numberOfActiveSchedulers());
@@ -72,10 +77,10 @@ public class SchedulerServiceTest {
                 .type("TestReq")
                 .build();
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.DELAY, Duration.ZERO.plus(100, MILLIS).toString());
-        params.put(SchedulerService.REPEAT_PERIOD, Duration.ZERO.plus(100, MILLIS).toString());
-        params.put(SchedulerService.MAXDURATION, Duration.ZERO.plus(560, MILLIS).toString());
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.DELAY, Duration.ZERO.plus(100, MILLIS).toString());
+        params.put(impl.services.sched_service.SchedService.REPEAT_PERIOD, Duration.ZERO.plus(100, MILLIS).toString());
+        params.put(impl.services.sched_service.SchedService.MAXDURATION, Duration.ZERO.plus(560, MILLIS).toString());
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
         assertEquals("unregistered scheduler too early", 1, instance.numberOfActiveSchedulers());
         assertEquals("registered scheduledEvent too early", 0, eventCollector.findEventsWithName("Test Schedule Doer").size());
@@ -92,9 +97,9 @@ public class SchedulerServiceTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.DELAY, Duration.ZERO.plus(100, MILLIS).toString());
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
-        Event cancelEvent = SchedulerService.generateSchedulerCancelEvent("Test Schedule Cancel", UUID.fromString(schedulerEvent.getEventField(SchedulerService.SCHEDULE_ID_FIELD)));
+        params.put(impl.services.sched_service.SchedService.DELAY, Duration.ZERO.plus(100, MILLIS).toString());
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        Event cancelEvent = impl.services.sched_service.SchedService.generateSchedulerCancelEvent("Test Schedule Cancel", UUID.fromString(schedulerEvent.getEventField(impl.services.sched_service.SchedService.SCHEDULE_ID_FIELD)));
 
         eventGenerator.registerEvent(schedulerEvent);
         assertEquals("unregistered scheduler too early", 1, instance.numberOfActiveSchedulers());
@@ -105,7 +110,7 @@ public class SchedulerServiceTest {
         assertEquals("Event fired when canceled1", 0, eventCollector.findEventsWithName("Test Schedule Doer").size());
         Thread.sleep(100);
         assertEquals("Event fired when canceled2", 0, eventCollector.findEventsWithName("Test Schedule Doer").size());
-        assertEquals("Canceled Event did not fire", 1, eventCollector.findEventsWithType(SchedulerService.SCHEDULE_EVENT_CANCELED).size());
+        assertEquals("Canceled Event did not fire", 1, eventCollector.findEventsWithType(impl.services.sched_service.SchedService.SCHEDULE_EVENT_CANCELED).size());
     }
 
     @Test
@@ -114,8 +119,8 @@ public class SchedulerServiceTest {
         Event scheduledEvent = new EventImpl("Test Schedule Doer", "TestReq");
 
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.DELAY, Duration.ZERO.plus(200, MILLIS).toString());
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.DELAY, Duration.ZERO.plus(200, MILLIS).toString());
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         for(int i = 0;i<200;i++) {
             eventGenerator.registerEvent(new EventImpl(schedulerEvent));
         }

@@ -1,4 +1,4 @@
-package impl.services.scheduler_service;
+package impl.services.sched_service;
 
 import api.events.Event;
 import api.events.EventSource;
@@ -30,10 +30,10 @@ import static org.junit.Assert.assertEquals;
  * Created by eric on 7/21/16.
  */
 @RunWith(PowerMockRunner.class)
-public class SchedulerServiceMalformattedTest {
+public class SchedServiceMalformattedTest {
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
-    private SchedulerService instance = new SchedulerService(eventQueueInterface, Clock.fixed(Instant.now(), ZoneId.systemDefault()));
+    private SchedService instance = new SchedService(eventQueueInterface, Clock.fixed(Instant.now(), ZoneId.systemDefault()));
     private EventCollector eventCollector = new EventCollector();
     private EventSource eventGenerator = new EventSourceImpl();
 
@@ -52,9 +52,9 @@ public class SchedulerServiceMalformattedTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         // Intentionally malformat the JSON
-        schedulerEvent.setEventField(SchedulerService.SCHEDULED_EVENT_ACTION, "XD");
+        schedulerEvent.setEventField(impl.services.sched_service.SchedService.SCHEDULED_EVENT_ACTION, "XD");
         eventGenerator.registerEvent(schedulerEvent);
     }
 
@@ -65,9 +65,9 @@ public class SchedulerServiceMalformattedTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         // Intentionally malformat the UUID
-        schedulerEvent.setEventField(SchedulerService.SCHEDULE_ID_FIELD, "XD");
+        schedulerEvent.setEventField(impl.services.sched_service.SchedService.SCHEDULE_ID_FIELD, "XD");
         eventGenerator.registerEvent(schedulerEvent);
     }
 
@@ -79,8 +79,8 @@ public class SchedulerServiceMalformattedTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.DELAY, "XD");
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.DELAY, "XD");
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
     }
 
@@ -91,8 +91,8 @@ public class SchedulerServiceMalformattedTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.START_TIME, "XD");
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.START_TIME, "XD");
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
     }
 
@@ -103,8 +103,8 @@ public class SchedulerServiceMalformattedTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.MAXDURATION, "XD");
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.MAXDURATION, "XD");
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
     }
 
@@ -115,8 +115,8 @@ public class SchedulerServiceMalformattedTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.END_TIME, "XD");
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.END_TIME, "XD");
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
     }
 
@@ -127,8 +127,8 @@ public class SchedulerServiceMalformattedTest {
 
         //Clunky at best
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.REPEAT_PERIOD, "XD");
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.REPEAT_PERIOD, "XD");
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
     }
 
@@ -140,8 +140,8 @@ public class SchedulerServiceMalformattedTest {
                 .type("TestReq")
                 .build();
         Map<String, String> params = new HashMap<>();
-        params.put(SchedulerService.REPEAT_PERIOD, Duration.ZERO.minus(100, MILLIS).toString());
-        Event schedulerEvent = SchedulerService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
+        params.put(impl.services.sched_service.SchedService.REPEAT_PERIOD, Duration.ZERO.minus(100, MILLIS).toString());
+        Event schedulerEvent = impl.services.sched_service.SchedService.generateSchedulerEvent("Test Schedule", scheduledEvent, params);
         eventGenerator.registerEvent(schedulerEvent);
     }
 }

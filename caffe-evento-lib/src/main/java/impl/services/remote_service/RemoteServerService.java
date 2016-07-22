@@ -42,11 +42,9 @@ public final class RemoteServerService extends AbstractService {
                 .eventData("serverId", serverId.toString())
                 .hasDataKey("eventHandlerDetails")
                 .eventHandler(event -> {
-                    try {
-                        getEventQueueInterface().addEventHandler(EventHandler.fromJson(event.getEventField("eventHandlerDetails")));
-                    }catch(JsonSyntaxException e) {
-                        //TODO: Log this error
-                    }
+                    EventHandler.fromJson(event.getEventField("eventHandlerDetails"))
+                            .ifPresent(h->getEventQueueInterface().addEventHandler(h));
+                    //TODO: Code does not log that it recieved a bad event handler when it runs this section, please advise.
                 })
                 .build());
 

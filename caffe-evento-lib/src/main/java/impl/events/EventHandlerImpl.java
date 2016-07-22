@@ -3,6 +3,7 @@ package impl.events;
 import api.events.Event;
 import api.events.EventHandler;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.client.HttpClient;
@@ -105,8 +106,12 @@ public final class EventHandlerImpl implements EventHandler {
         }
     }
 
-    public static EventHandler fromJson(String json) {
-        return decodeFromEventData(new GsonBuilder().create().fromJson(json, EventHandlerData.class));
+    public static Optional<EventHandler> fromJson(String json) {
+        try {
+            return Optional.of(decodeFromEventData(new GsonBuilder().create().fromJson(json, EventHandlerData.class)));
+        }catch(JsonSyntaxException e){
+            return Optional.empty();
+        }
     }
 
     public static EventHandlerBuilder create() {
