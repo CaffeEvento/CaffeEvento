@@ -14,6 +14,7 @@ public interface EventHandler {
     void handleEvent(Event theEvent);
     String encodeToJson();
     void addIpDestination(String uri);
+    EventHandler getCopy();
 
     static EventHandler fromJson(String json) {
         return EventHandlerImpl.fromJson(json);

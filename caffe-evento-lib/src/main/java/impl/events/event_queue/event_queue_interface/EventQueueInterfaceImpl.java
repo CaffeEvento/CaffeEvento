@@ -48,7 +48,7 @@ public class EventQueueInterfaceImpl implements EventQueueInterface {
     }
 
     @Override
-    public final void removeEventSource(UUID id) {
+    public void removeEventSource(UUID id) {
         eventSources.stream().filter(s -> s.getEventSourceId().equals(id)).findFirst()
                 .ifPresent(this::removeEventSource);
     }
@@ -66,7 +66,7 @@ public class EventQueueInterfaceImpl implements EventQueueInterface {
     }
 
     @Override
-    public final void removeEventHandler(UUID id) {
+    public void removeEventHandler(UUID id) {
         eventHandlers.stream().filter(h -> h.getEventHandlerId().equals(id)).findFirst()
                 .ifPresent(this::removeEventHandler);
     }

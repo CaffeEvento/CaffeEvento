@@ -64,7 +64,7 @@ public final class RemoteServerService extends AbstractService {
                 })
                 .build());
 
-        // TODO: confirm this is the desired behavior ESP with regards to "Event.decodeEvent(req.getReader()).orElse(null)"
-        server.addService(name, serverId, "/receiveEvent", (req, res) -> eventGenerator.registerEvent(Event.decodeEvent(req.getReader()).orElse(null)));
+        // Register the event if it is well formatted.
+        server.addService(name, serverId, "/receiveEvent", (req, res) -> Event.decodeEvent(req.getReader()).ifPresent(eventGenerator::registerEvent));
     }
 }

@@ -30,6 +30,11 @@ public final class EventHandlerImpl implements EventHandler {
     private EventHandlerImpl() {
     } // Haha, nobody can create me now!
 
+    private EventHandlerImpl(EventHandlerImpl eventHandler) {
+        this.eventHandlerData = new EventHandlerData(eventHandler.eventHandlerData);
+        this.eventConsumers = new ArrayList<>(eventHandler.eventConsumers);
+    }
+
     @Override
     public final UUID getEventHandlerId() {
         return eventHandlerData.getEventHandlerId();
@@ -43,6 +48,11 @@ public final class EventHandlerImpl implements EventHandler {
     @Override
     public void addIpDestination(String url) {
         eventHandlerData.httpEventReceiver = url;
+    }
+
+    @Override
+    public EventHandler getCopy() {
+        return new EventHandlerImpl(this);
     }
 
     @Override
@@ -126,6 +136,17 @@ public final class EventHandlerImpl implements EventHandler {
         private Set<String> hasKeys = new HashSet<>();
 
         private EventHandlerData() {
+        }
+
+        private EventHandlerData(EventHandlerData data) {
+            this.eventHandlerId = data.eventHandlerId;
+            this.eventName = data.eventName;
+            this.eventType = data.eventType;
+            this.httpEventReceiver = data.httpEventReceiver;
+            this.socketEventReceiver = data.socketEventReceiver;
+            this.eventData = new HashMap<>(data.eventData);
+            this.eventDataLike = new HashMap<>(data.eventData);
+            this.hasKeys = new HashSet<>(hasKeys);
         }
 
         UUID getEventHandlerId() {

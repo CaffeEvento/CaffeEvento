@@ -1,62 +1,141 @@
 package impl.events.event_queue.event_queue_interface;
 
+import api.events.Event;
 import api.events.EventHandler;
 import api.events.EventSource;
 import api.lib.EmbeddedServletServer;
+import api.lib.ServerHandler;
+import api.utils.EventBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import impl.events.EventSourceImpl;
 import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
+import impl.lib.JSONUtils;
 import impl.lib.servlet_server.EmbeddedServletServerImpl;
+import impl.services.remote_service.RemoteServerService;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClients;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
+import java.io.*;
+import java.util.Optional;
+import java.util.UUID;
+
 /**
- * TODO: this is all probably mostly useless
  * Created by chris on 7/14/16.
  */
-public class RemoteEventQueueInterface extends EventQueueInterfaceImpl {
-    private String localEventDestination;
+public class RemoteEventQueueInterface extends BufferedEventQueueInterface {
     private EmbeddedServletServer server;
-    private String serverId;
-    private EventSource eventGenerator;
+    private UUID serverId = UUID.randomUUID();
+    private UUID remoteServiceId;
+    private String localEventReceiver;
+    private boolean isConnected;
+    private String remoteEventReceiver;
+    private HttpClient client = HttpClients.createDefault();
 
-    public RemoteEventQueueInterface(ServletContextHandler handler) {
-        eventGenerator = new EventSourceImpl();
-        addEventSource(eventGenerator);
-        server = new EmbeddedServletServerImpl(handler);
-//        server.addServletConsumer("/receiveEvent", (req, res) -> {
-//            try {
-//                eventGenerator.registerEvent(Event.decodeEvent(req.getReader()));
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        });
+
+    public RemoteEventQueueInterface(EmbeddedServletServer server, String serviceName, String localIp) {
+        this.server = server;
+        this.localEventReceiver = localIp + "/" + serverId.toString() + "/receiveEvent";
+        server.addService(serviceName, serverId, "/receiveEvent", (req, res) -> Event.decodeEvent(req.getReader()).ifPresent(this::receiveEvent));
     }
 
-    public void connectToServer(String serverUrl) {
-        // TODO: get the server id
+    public synchronized void connectToServer(String serviceName, String remoteIp) throws IOException, RemoteEventQueueInterfaceException {
+        if(isConnected) {
+            disconnectFromServer();
+        }
 
-        // TODO: set the local ip
+        // Connect to server to get remote service id
+        HttpGet getIds = new HttpGet(remoteIp + "/services");
+        HttpResponse response = client.execute(getIds);
+        JsonObject jsonResponse = JSONUtils.convertToJsonObject(new InputStreamReader(response.getEntity().getContent()));
+
+        String id = Optional.ofNullable(jsonResponse.get(serviceName)).map(JsonElement::getAsString)
+                .orElseThrow(() -> new RemoteEventQueueInterfaceException("No service with name: " + serviceName));
+        remoteServiceId = UUID.fromString(id);
+        remoteEventReceiver = remoteIp + "/" + remoteServiceId + "/receiveEvent";
+        isConnected = true;
+
+        // Add my event handlers to the remote client
+        eventHandlers.forEach(this::addRemoteEventHandler);
+    }
+
+    public synchronized void disconnectFromServer() {
+        // remove my event handlers from remote client
+        eventHandlers.stream().map(EventHandler::getEventHandlerId).forEach(this::removeRemoteEventHandler);
+        isConnected = false;
+        remoteEventReceiver = null;
+        remoteServiceId = null;
     }
 
     @Override
-    public void addEventHandler(EventHandler theEventHandler) {
-        theEventHandler.addIpDestination(localEventDestination);
-
-        // TODO: Send create event handler to the server
-        // Send the Create event handler event
-
-        // Send CREATE_EVENT_HANDLER_EVENT
-        // Needs to have a server id so that we know which server should handle it.
-        // if type == CREATE_EVENT_HANDLER_EVENT && serverId == my-server-id
-        ///  - then we want to handle the event
-        String eventHandlerData = theEventHandler.encodeToJson();
-        // Send the event handler data, with the server data
-
-        super.addEventHandler(theEventHandler);
+    public void addEventHandler(EventHandler handler) {
+        // Add event handler locally
+        super.addEventHandler(handler);
+        addRemoteEventHandler(handler);
     }
 
-    // TODO: Create a HTTP server that handles the events, send them to receiveEvent
-    // HTTP server should also have a getServerId thing
+    private void addRemoteEventHandler(EventHandler handler) {
+        if (isConnected) {
+            EventHandler remoteHandler = handler.getCopy();
+            remoteHandler.addIpDestination(localEventReceiver);
+            EventBuilder.create().name("ADD " + handler.getEventHandlerId())
+                    .type("CREATE_EVENT_HANDLER")
+                    .data("serverId", remoteServiceId.toString())
+                    .data("eventHandlerDetails", handler.encodeToJson())
+                    .build(this::sendEventToRemote);
+        }
+    }
 
-    // Should also have the ability ot handle CREATE_EVENT_HANDLER_EVENT
-    //
+    @Override
+    public void removeEventHandler(EventHandler handler) {
+        super.removeEventHandler(handler);
+        removeRemoteEventHandler(handler.getEventHandlerId());
+    }
+
+    @Override
+    public void removeEventHandler(UUID id) {
+        super.removeEventHandler(id);
+        removeRemoteEventHandler(id);
+    }
+
+    private void removeRemoteEventHandler(UUID id) {
+        if (isConnected) {
+            EventBuilder.create().name("REMOVE " + id)
+                    .type("REMOVE_EVENT_HANDLER")
+                    .data("serverId", remoteServiceId.toString())
+                    .data("eventHandlerId", id.toString())
+                    .build(this::sendEventToRemote);
+        }
+    }
+
+    @Override
+    public void receiveEvent(Event e) {
+        super.receiveEvent(e);
+        sendEventToRemote(e);
+    }
+
+    private void sendEventToRemote(Event e) {
+        HttpPost post = new HttpPost(remoteEventReceiver);
+        String eventJson = e.encodeEvent();
+        try {
+            post.addHeader("content-type", "text/json");
+            post.setEntity(new StringEntity(eventJson));
+            client.execute(post);
+        } catch (IOException ex) {
+            log.error("Unable to send event to remote: " + eventJson, ex);
+        }
+
+    }
+
+    public class RemoteEventQueueInterfaceException extends Exception {
+        public RemoteEventQueueInterfaceException(String message) {
+            super(message);
+        }
+    }
 }

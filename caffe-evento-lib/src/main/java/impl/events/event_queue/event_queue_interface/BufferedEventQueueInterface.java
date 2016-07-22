@@ -7,6 +7,8 @@ import impl.events.EventSourceImpl;
 import impl.events.event_queue.SynchronousEventQueue;
 import impl.lib.AutoRotatedSetLogger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -15,6 +17,8 @@ import java.util.UUID;
 public class BufferedEventQueueInterface extends EventQueueInterfaceImpl implements EventSink{
     protected EventSource internalEventGenerator = new EventSourceImpl();
     private EventSource externalEventGenerator = new EventSourceImpl();
+    protected List<EventHandler> eventHandlers = new ArrayList<>();
+    protected List<EventSource> eventSources = new ArrayList<>();
     private SetLogger<UUID> eventLogger;
     private EventQueue bufferEventQueue;
 
@@ -43,24 +47,38 @@ public class BufferedEventQueueInterface extends EventQueueInterfaceImpl impleme
 
     @Override
     public void addEventHandler(EventHandler theEventHandler) {
+        eventHandlers.add(theEventHandler);
         bufferEventQueue.addEventHandler(theEventHandler);
     }
 
     @Override
     public void removeEventHandler(EventHandler theEventHandler) {
+        eventHandlers.remove(theEventHandler);
         bufferEventQueue.removeEventHandler(theEventHandler);
     }
 
     @Override
+    public void removeEventHandler(UUID handlerId) {
+        eventHandlers.stream().filter(h -> h.getEventHandlerId().equals(handlerId)).forEach(this::removeEventHandler);
+    }
+
+    @Override
     public void addEventSource(EventSource eventSource) {
+        eventSources.add(eventSource);
         eventSource.addListener(this);
         bufferEventQueue.addEventSource(eventSource);
     }
 
     @Override
     public void removeEventSource(EventSource eventSource) {
+        eventSources.add(eventSource);
         eventSource.addListener(this);
         bufferEventQueue.addEventSource(eventSource);
+    }
+
+    @Override
+    public void removeEventSource(UUID sourceId) {
+        eventSources.stream().filter(s -> s.getEventSourceId().equals(sourceId)).forEach(this::removeEventSource);
     }
 
     @Override
