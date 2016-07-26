@@ -3,21 +3,29 @@ package impl.events.event_queue;
 import api.events.Event;
 import api.events.EventHandler;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created by chris on 7/21/16.
  */
 public class AsynchronousEventQueue extends AbstractEventQueue {
-    private Executor myExecutor;
+    private ExecutorService myExecutor;
+    private Consumer<Event> defaultHandler;
 
-    public AsynchronousEventQueue(Executor e) {
+    public AsynchronousEventQueue(ExecutorService e) {
+        this(e, c -> {});
+    }
+
+    public AsynchronousEventQueue(ExecutorService e, Consumer<Event> defaultHandler) {
         this.myExecutor = e;
+        this.defaultHandler = defaultHandler;
     }
 
     public AsynchronousEventQueue(int numExecutors) {
-        this(Executors.newFixedThreadPool(numExecutors));
+        this(Executors.newFixedThreadPool(numExecutors), e -> {});
     }
 
     public AsynchronousEventQueue() {
@@ -26,14 +34,33 @@ public class AsynchronousEventQueue extends AbstractEventQueue {
 
     @Override
     public void receiveEvent(Event e) {
-        getEventHandlers().stream()
-                .map(handler -> (Runnable) () -> processEvent(handler, e))
-                .forEach(myExecutor::execute);
+        List<Future<Boolean>> results = getEventHandlers().stream()
+                .map(handler -> (Callable<Boolean>) () -> processEvent(handler, e))
+                .map(myExecutor::submit)
+                .collect(Collectors.toList());
+
+        new Thread() {
+            public void run() {
+                boolean anyRan = results.parallelStream().map(f -> {
+                    try {
+                        return f.get();
+                    } catch (InterruptedException | ExecutionException e1) {
+                        e1.printStackTrace();
+                        return false;
+                    }
+                }).anyMatch(r -> r);
+                if (!anyRan) {
+                    defaultHandler.accept(e);
+                }
+            }
+        }.run();
     }
 
-    private void processEvent(EventHandler handler, Event e) {
+    private boolean processEvent(EventHandler handler, Event e) {
         if (handler.getHandlerCondition().test(e)) {
             handler.handleEvent(e);
+            return true;
         }
+        return false;
     }
 }
