@@ -8,8 +8,11 @@ import com.google.gson.JsonSyntaxException;
 import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
 import impl.events.EventSourceImpl;
 import api.lib.EmbeddedServletServer;
+import impl.lib.optional.OptionalConsumer;
 import impl.lib.servlet_server.EmbeddedServletServerImpl;
 import impl.services.AbstractService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import java.rmi.Remote;
@@ -21,6 +24,7 @@ import java.util.UUID;
 public final class RemoteServerService extends AbstractService {
     private UUID serverId = UUID.randomUUID();
     private EventSource eventGenerator;
+    private Log log = LogFactory.getLog(getClass());
 
     public RemoteServerService(String name, ServletContextHandler handler) {
         this(name, new EventQueueInterfaceImpl(), handler);
@@ -42,8 +46,9 @@ public final class RemoteServerService extends AbstractService {
                 .eventData("serverId", serverId.toString())
                 .hasDataKey("eventHandlerDetails")
                 .eventHandler(event -> {
-                    EventHandler.fromJson(event.getEventField("eventHandlerDetails"))
-                            .ifPresent(h->getEventQueueInterface().addEventHandler(h));
+                    OptionalConsumer.of(EventHandler.fromJson(event.getEventField("eventHandlerDetails")))
+                            .ifPresent(h->getEventQueueInterface().addEventHandler(h))
+                            .ifNotPresent(() -> log.debug("received unparsable event"));
                     //TODO: Code does not log that it recieved a bad event handler when it runs this section, please advise.
                 })
                 .build());
