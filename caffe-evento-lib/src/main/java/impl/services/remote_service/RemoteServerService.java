@@ -62,6 +62,7 @@ public final class RemoteServerService extends AbstractService {
                     try {
                         getEventQueueInterface().removeEventHandler(UUID.fromString(event.getEventField("eventHandlerId")));
                     }catch(IllegalArgumentException e) {
+                        log.debug("Recieved unparseable UUID");
                         //TODO: Log this error
                     }
                 })

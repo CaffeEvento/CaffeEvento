@@ -28,7 +28,7 @@ public class SchedulerService extends AbstractService {
     /* code */
     SchedulerService(EventQueueInterface eventQueueInterface){
         super(eventQueueInterface);
-        
+
     }
 
     private class schedulerJob implements Job {

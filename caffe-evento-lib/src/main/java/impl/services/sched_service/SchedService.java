@@ -93,7 +93,6 @@ public class SchedService extends AbstractService {
                         activeSchedulers.put(theScheduler.getSchedulerId(), theScheduler);
                     } catch (SchedException e) {
                         log.error("could not schedule a timer for the event.", e);
-                        e.printStackTrace();
                     }
                 }).build());
     }

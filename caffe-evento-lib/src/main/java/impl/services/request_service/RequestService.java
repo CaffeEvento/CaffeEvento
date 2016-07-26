@@ -49,7 +49,6 @@ public class RequestService extends AbstractService {
                         activeRequests.put(theRequest.getRequestId(), theRequest);
                     } catch (RequestException e) {
                         log.error("Could not generate a request for the event.", e);
-                        e.printStackTrace();
                     }
         }).build());
     }
@@ -132,7 +131,6 @@ public class RequestService extends AbstractService {
                             log.error("Could not fufill request " + requestId + ".\n" +
                                     "Induced by " + sourceEvent.getEventName() + ": " + sourceEvent.getEventId() + "\n" +
                                     "Unable to determine configured number of retries: Defaulting to none\nMaxRetries: " + sourceEvent.getEventField(REQUEST_MAX_RETRIES_FIELD));
-                            error.printStackTrace();
                             activeRequests.remove(requestId);
                             requestEventHandlers.forEach(e -> getEventQueueInterface().removeEventHandler(e));
                         }
