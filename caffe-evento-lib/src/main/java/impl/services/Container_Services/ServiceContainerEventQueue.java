@@ -38,7 +38,7 @@ public abstract class ServiceContainerEventQueue implements EventQueue, Service{
 
     //EventQueue: receiveEvent()
     @Override
-    public synchronized void receiveEvent(Event event) {
+    public void receiveEvent(Event event) {
         delegateEventQueue.receiveEvent(event);
     }
 

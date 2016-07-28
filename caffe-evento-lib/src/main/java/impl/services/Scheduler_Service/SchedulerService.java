@@ -17,16 +17,16 @@ import org.apache.commons.logging.LogFactory;
 public class SchedulerService extends ServiceContainerEventQueue {
     /* constants */
         /* mandatory fields */
-        private static final String FORMAT = "SCHEDULER_FORMAT";
-        private static final String ARGS = "SCHEDULER_ARGS";
-        private static final String SCHEDULER_ID_FIELD = "SCHEDULER_ID";
-        private static final String SCHEDULED_ACTION = "SCHEDULED_EVENT";
+        public static final String FORMAT = "SCHEDULER_FORMAT";
+        public static final String ARGS = "SCHEDULER_ARGS";
+        public static final String SCHEDULER_ID_FIELD = "SCHEDULER_ID";
+        public static final String SCHEDULED_ACTION = "SCHEDULED_EVENT";
         /* pick one eventType */
-        private static final String SCHEDULE_EVENT = "SCHEDULE";
-        private static final String UNSCHEDULE_EVENT = "UNSCHEDULE";
+        public static final String SCHEDULE_EVENT = "SCHEDULE";
+        public static final String UNSCHEDULE_EVENT = "UNSCHEDULE";
         /* pick one reply */
-        private static final String SCHEDULER_ERROR = "UNSCHEDULABLE_EVENT";
-        private static final String UNSCHEDULED_ACTION = "UNSCHEDULED";
+        public static final String SCHEDULER_ERROR = "UNSCHEDULABLE_EVENT";
+        public static final String UNSCHEDULED_ACTION = "UNSCHEDULED";
 
     /* finals */
         private static final Log log = LogFactory.getLog(SchedulerService.class);
@@ -37,6 +37,7 @@ public class SchedulerService extends ServiceContainerEventQueue {
         super(eventQueueInterface, FirstHandlerOnly::new);
     }
 
+    @Override
     protected void elevate(Event event) {
         if(searchCriteria().getHandlerCondition().test(event)) {
             log.error("No compatible Scheduler for: " + event.encodeEvent());
@@ -60,6 +61,13 @@ public class SchedulerService extends ServiceContainerEventQueue {
                 .hasDataKey(SCHEDULER_ID_FIELD)
                 .hasDataKey(SCHEDULED_ACTION)
                 .eventHandler(this::receiveEvent)
+                .build();
+    }
+
+    public static Event couldNotSchedule(Event event, String reason) {
+        return EventBuilder.create()
+                .type(SCHEDULER_ERROR)
+                .name(reason + event.getEventName())
                 .build();
     }
 }
