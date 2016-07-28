@@ -21,6 +21,11 @@
             <artifactId>jetty-server</artifactId>
             <version>RELEASE</version>
         </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>LATEST</version>
+        </dependency>
     </dependencies>
 
 

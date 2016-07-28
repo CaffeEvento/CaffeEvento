@@ -1,7 +1,16 @@
 package server;
 
-import api.lib.EmbeddedServletServer;
-import impl.lib.servlet_server.EmbeddedServletServerImpl;
+
+import api.events.Event;
+import api.events.EventSource;
+import api.events.event_queue.EventQueue;
+import api.services.Service;
+import impl.events.EventSourceImpl;
+import impl.events.event_queue.AsynchronousEventQueue;
+import impl.lib.servlet_server.SimpleServletRegister;
+import impl.services.remote_service.RemoteServerService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandler;
@@ -9,32 +18,57 @@ import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import java.util.UUID;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 
 /**
  * Created by chris on 7/18/16.
  */
 public class Main {
     private static Server server;
+    private static Log log = LogFactory.getLog(Main.class);
+    private static ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static EventQueue eventQueue;
+    private static EventSource eventInjector = new EventSourceImpl();
 
     public static void main(String[] args) throws Exception{
         server = new Server(2345);
-        setupRemoteServerService(server);
+
+        // Setup the remote server service
+        ServletContextHandler remoteServiceHandler = getServerHandler("/remote_service");
+        RemoteServerService remoteServerService = new RemoteServerService("remote_service", remoteServiceHandler);
+        ServletContextHandler servletRegisterHandler = getServerHandler("/servlets");
+        SimpleServletRegister servletRegister = new SimpleServletRegister(servletRegisterHandler);
+        servletRegister.addServlet("/registerEvent", (req, res) -> Event.decodeEvent(req.getReader())
+                .ifPresent(eventInjector::registerEvent));
+
+        Handler resourceHandler = getResourceHandler();
+        setHandlers(server, remoteServiceHandler, servletRegisterHandler, resourceHandler, new DefaultHandler());
         server.start();
+        eventQueue = new AsynchronousEventQueue(executor, e -> log.info("Event queue did not handle event: " + e.encodeEvent()));
+        eventQueue.addEventSource(eventInjector);
+        eventQueue.registerService(remoteServerService);
+
+        log.info("Services started!");
     }
 
-    private static void setupRemoteServerService(Server server) throws Exception{
+    private static void setHandlers(Server server, Handler...handlers) {
+        HandlerList handlerList = new HandlerList();
+        handlerList.setHandlers(handlers);
+        server.setHandler(handlerList);
+    }
+
+    private static ServletContextHandler getServerHandler(String contextPath) throws Exception {
         ServletContextHandler servletContextHandler = new ServletContextHandler();
-        servletContextHandler.setContextPath("/servers");
-        EmbeddedServletServer servletServer = new EmbeddedServletServerImpl(servletContextHandler);
+        servletContextHandler.setContextPath(contextPath);
+        return servletContextHandler;
+    }
 
-        UUID serviceId = UUID.randomUUID();
-        String serviceName = "My Service";
-        servletServer.addService(serviceName, serviceId, "/test", (req, res) -> res.getWriter().write("This was a testy"));
-        servletServer.addService(serviceName, serviceId, "/test2", (req, res) -> res.getWriter().write("Making a note here, huge success"));
-        servletServer.addService(serviceName, serviceId, "/test3", (req, res) -> res.getWriter().write("Its hard to overstate my satisfaction"));
-        servletServer.addService(serviceName, serviceId, "/test4", (req, res) -> res.getWriter().write("Aperture science.. we do what we must"));
-
+    private static Handler getResourceHandler() throws Exception {
         ResourceHandler resource_handler = new ResourceHandler();
         resource_handler.setDirectoriesListed(true);
         resource_handler.setWelcomeFiles(new String[]{ "index.html" });
@@ -42,9 +76,6 @@ public class Main {
         ContextHandler resourceContextHandler = new ContextHandler();
         resourceContextHandler.setContextPath("/*");
         resourceContextHandler.setHandler(resource_handler);
-
-        HandlerList handlers = new HandlerList();
-        handlers.setHandlers(new Handler[] { resourceContextHandler, servletContextHandler, new DefaultHandler() });
-        server.setHandler(handlers);
+        return resourceContextHandler;
     }
 }

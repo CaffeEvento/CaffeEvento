@@ -3,8 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>This is an index</title>
+    <script src="js/jquery/jquery.min.js"></script>
+    <script>
+        window.onload = function() {
+            $("#register_event_button").click(function(e) {
+                var event = {};
+                event.eventName = $("#eventName").val();
+                event.eventType = $("#eventType").val();
+                console.log(event);
+                $.ajax({
+                    url: '/servlets/registerEvent',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(event),
+                    dataType: 'json'
+                });
+            })
+        };
+    </script>
 </head>
 <body>
-<h1>Making a note here, this is cool.</h1>
+<div id="event_adder">
+    <label for="eventName">Event Name:</label><input id="eventName" name="eventName" type="text"><br>
+    <label for="eventType">Event Type:</label><input id="eventType" name="eventType" type="text"><br>
+    <input id="register_event_button" type="button" value="Register Event">
+</div>
 </body>
 </html>
