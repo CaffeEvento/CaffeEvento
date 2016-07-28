@@ -41,7 +41,6 @@ public abstract class AbstractEventQueue implements EventQueue {
     @Override
     public void unRegisterService(Service theService) {
         removeEventQueueInterface(theService.getEventQueueInterface());
-
     }
 
     @Override

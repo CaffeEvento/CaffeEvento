@@ -14,11 +14,11 @@ import java.util.function.Consumer;
 public class FirstHandlerOnly extends AbstractEventQueue {
     Consumer<Event> defaultHandler;
 
-    FirstHandlerOnly() {
+    public FirstHandlerOnly() {
         defaultHandler = event->{};
     }
 
-    FirstHandlerOnly(Consumer<Event> defaultHandler) {
+    public FirstHandlerOnly(Consumer<Event> defaultHandler) {
         this.defaultHandler = defaultHandler;
     }
 
