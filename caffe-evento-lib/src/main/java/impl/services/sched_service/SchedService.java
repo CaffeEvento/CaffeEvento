@@ -92,7 +92,7 @@ public class SchedService extends AbstractService {
                         Scheduler theScheduler = new Scheduler(theEvent);
                         activeSchedulers.put(theScheduler.getSchedulerId(), theScheduler);
                     } catch (SchedException e) {
-                        log.error("could not schedule a timer for the event.", e);
+                        log.error("could not schedule a timer for the event.\nEventDetails:\n" + theEvent.encodeEvent());
                     }
                 }).build());
     }
@@ -145,7 +145,7 @@ public class SchedService extends AbstractService {
             }
 
             scheduledEvent = Event.decodeEvent(sourceEvent.getEventField(SCHEDULED_EVENT_ACTION))
-                    .orElseThrow(()-> new SchedException("Malformatted Event to Schedule"));
+                    .orElseThrow(()-> new SchedException("Malformatted Event to Schedule: " + sourceEvent.getEventField(SCHEDULED_EVENT_ACTION)));
 
             // break out all the optional field
             try {

@@ -17,6 +17,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.easymock.EasyMock.expect;
@@ -32,10 +33,12 @@ import static org.powermock.api.easymock.PowerMock.verifyAll;
 @RunWith( PowerMockRunner.class )
 @PrepareForTest( { EventQueueInterfaceImpl.class } )
 public class SynchronousEventQueueTest {
-    private EventQueue instance = new SynchronousEventQueue();
+    private EventQueue instance;
 
     @Mock
     private Event event;
+    @Mock
+    Consumer<Event> defaultHandler;
 
     @Mock
     private EventQueueInterface eventQueueInterface;
@@ -47,6 +50,7 @@ public class SynchronousEventQueueTest {
     public void setUp() {
         eventHandlers = Lists.newArrayList(createMock(EventHandler.class), createMock(EventHandler.class));
         eventSources = Lists.newArrayList(PowerMock.createMock(EventSourceImpl.class), createMock(EventSourceImpl.class));
+        instance = new SynchronousEventQueue(defaultHandler);
     }
 
     private void prepareService(EventQueueInterface theEventQueueInterface) {
@@ -86,6 +90,9 @@ public class SynchronousEventQueueTest {
         eventHandlers.forEach(eventHandler -> {
             expect(eventHandler.getHandlerCondition()).andReturn(event -> false);
         });
+
+        defaultHandler.accept(event);
+        expectLastCall();
 
         replayAll();
         instance.addEventQueueInterface(eventQueueInterface);
@@ -132,6 +139,32 @@ public class SynchronousEventQueueTest {
         verifyAll();
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testDefaultHandlerWithHandlers() throws Exception {
+        int numHandlers = 3;
+        EventHandler eventHandler;
+        for(int i = 0; i < numHandlers; i++) {
+            eventHandler = createMock(EventHandler.class);
+            expect(eventHandler.getHandlerCondition()).andReturn(event -> false);
+            instance.addEventHandler(eventHandler);
+        }
 
+        defaultHandler.accept(event);
+        expectLastCall();
 
+        replayAll();
+        instance.receiveEvent(event);
+        verifyAll();
+    }
+
+    @Test
+    public void testDefaultHandler() {
+        defaultHandler.accept(event);
+        expectLastCall();
+
+        replayAll();
+        instance.receiveEvent(event);
+        verifyAll();
+    }
 }
