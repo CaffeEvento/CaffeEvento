@@ -2,27 +2,15 @@ package impl.events.event_queue.event_queue_interface;
 
 import api.events.Event;
 import api.events.EventHandler;
-import api.events.EventSource;
 import api.lib.EmbeddedServletServer;
-import api.lib.ServerHandler;
 import api.utils.EventBuilder;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import impl.events.EventSourceImpl;
-import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
-import impl.lib.JSONUtils;
-import impl.lib.servlet_server.EmbeddedServletServerImpl;
-import impl.services.remote_service.RemoteServerService;
 import impl.utils.CEHttpUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import java.io.*;
 import java.util.Collections;

@@ -2,6 +2,7 @@ package impl.lib;
 
 import api.lib.EmbeddedServletServer;
 import impl.lib.servlet_server.EmbeddedServletServerImpl;
+import impl.utils.JSONUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -15,14 +16,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static impl.lib.JSONUtils.convertToJson;
 import static org.junit.Assert.*;
 
 /**

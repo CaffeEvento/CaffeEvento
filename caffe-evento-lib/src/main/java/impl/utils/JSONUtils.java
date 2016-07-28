@@ -1,4 +1,4 @@
-package impl.lib;
+package impl.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

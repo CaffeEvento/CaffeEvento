@@ -3,7 +3,6 @@ package api.events;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import impl.events.EventImpl;
-import impl.lib.JSONUtils;
 
 import java.io.Reader;
 import java.util.Date;

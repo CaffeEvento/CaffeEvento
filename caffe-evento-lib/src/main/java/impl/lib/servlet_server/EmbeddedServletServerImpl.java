@@ -3,23 +3,16 @@ package impl.lib.servlet_server;
 import api.lib.EmbeddedServletServer;
 import api.lib.ServerHandler;
 import com.google.gson.JsonObject;
-import impl.lib.JSONUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.eclipse.jetty.server.Handler;
-import org.eclipse.jetty.server.Server;
+import impl.utils.JSONUtils;
 import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
