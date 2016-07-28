@@ -150,7 +150,7 @@ public final class EventHandlerImpl implements EventHandler {
             this.httpEventReceiver = data.httpEventReceiver;
             this.socketEventReceiver = data.socketEventReceiver;
             this.eventData = new HashMap<>(data.eventData);
-            this.eventDataLike = new HashMap<>(data.eventData);
+            this.eventDataLike = new HashMap<>(data.eventDataLike);
             this.hasKeys = new HashSet<>(hasKeys);
         }
 

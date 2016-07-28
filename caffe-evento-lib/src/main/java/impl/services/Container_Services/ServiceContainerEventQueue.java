@@ -6,79 +6,40 @@ import api.events.EventSource;
 import api.events.event_queue.EventQueue;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.services.Service;
-import impl.events.EventHandlerImpl;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
 
-import java.util.UUID;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by eric on 7/28/16.
  */
-public class ServiceContainerEventQueue implements EventQueue, Service{
-    private final EventSource eventGenerator = new EventSourceImpl();
+public abstract class ServiceContainerEventQueue implements EventQueue, Service{
+    protected static final EventSource elevateGenerator = new EventSourceImpl();
     private final Service delegateService;
     private final EventQueue delegateEventQueue;
-    private final EventHandler handles;
-    private final Predicate<Event> eventPredicate;
 
-    ServiceContainerEventQueue(EventQueueInterface eventQueueInterface, EventQueue internalEventQueue, Predicate<Event> eventPredicate) {
-        delegateEventQueue = internalEventQueue;
+    public ServiceContainerEventQueue(EventQueueInterface eventQueueInterface, Function<Consumer<Event>, EventQueue> internalQueueGenerator) {
+        delegateEventQueue = internalQueueGenerator.apply(this::elevate);
         delegateService = new AbstractService(eventQueueInterface) {
             @Override
             public EventQueueInterface getEventQueueInterface() {
                 return super.getEventQueueInterface();
             }
         };
-        getEventQueueInterface().addEventSource(eventGenerator);
-        this.eventPredicate = eventPredicate;
-        handles = new EventHandler() {
-            private EventHandler delegate = EventHandler
-                    .create()
-                    .eventHandler(event -> receiveEvent(event))
-                    .build();
-            @Override
-            public UUID getEventHandlerId() {
-                return delegate.getEventHandlerId();
-            }
-
-            @Override
-            public Predicate<Event> getHandlerCondition() {
-                return eventPredicate;
-            }
-
-            @Override
-            public void handleEvent(Event theEvent) {
-                delegate.handleEvent(theEvent);
-            }
-
-            @Override
-            public String encodeToJson() {
-                return delegate.encodeToJson();
-            }
-
-            @Override
-            public void addIpDestination(String uri) {
-                delegate.addIpDestination(uri);
-            }
-
-            @Override
-            public EventHandler getCopy() {
-                return delegate.getCopy();
-            }
-        };
-        getEventQueueInterface().addEventHandler(handles);
+        getEventQueueInterface().addEventSource(elevateGenerator);
+        getEventQueueInterface().addEventHandler(searchCriteria());
     }
+
+    //Internal Methods
+    abstract protected void elevate(Event event);
+    abstract protected EventHandler searchCriteria();
 
     //EventQueue: receiveEvent()
     @Override
     public synchronized void receiveEvent(Event event) {
-        if (eventPredicate.test(event)) {
-            delegateEventQueue.receiveEvent(event);
-        } else {
-            elevate(event);
-        }
+        delegateEventQueue.receiveEvent(event);
     }
 
     //EventQueue: everything else
@@ -119,10 +80,5 @@ public class ServiceContainerEventQueue implements EventQueue, Service{
     @Override
     public EventQueueInterface getEventQueueInterface(){
         return delegateService.getEventQueueInterface();
-    }
-
-    //Internal Methods
-    public void elevate(Event event) {
-        eventGenerator.registerEvent(event);
     }
 }
