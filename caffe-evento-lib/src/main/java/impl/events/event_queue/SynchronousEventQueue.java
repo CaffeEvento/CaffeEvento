@@ -24,10 +24,11 @@ public class SynchronousEventQueue extends AbstractEventQueue {
 
     @Override
     public synchronized void receiveEvent(Event e) {
-        if (getEventHandlers().stream()
+        long numHandlers = getEventHandlers().stream()
                 .filter(handler -> handler.getHandlerCondition().test(e))
                 .peek(handler -> handler.handleEvent(e))
-                .reduce(true, (b,h)->false, (c,d)->c&&d)){
+                .count();
+        if(numHandlers <= 0) {
             defaultHandler.accept(e);
         }
     }
