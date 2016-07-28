@@ -5,11 +5,16 @@
     <title>This is an index</title>
     <script src="js/jquery/jquery.min.js"></script>
     <script>
+        var numEventDataFields = 0;
         window.onload = function() {
             $("#register_event_button").click(function(e) {
                 var event = {};
                 event.eventName = $("#eventName").val();
                 event.eventType = $("#eventType").val();
+                event.eventDetails = {};
+                for(var i = 0; i<numEventDataFields; i++) {
+                    event.eventDetails[$('#eventDataKey' + i).val()] = $('#eventDataValue' + i).val();
+                }
                 console.log(event);
                 $.ajax({
                     url: '/servlets/registerEvent',
@@ -18,7 +23,33 @@
                     data: JSON.stringify(event),
                     dataType: 'json'
                 });
-            })
+            });
+
+            $("#add_data_field").click(function(e) {
+                var id = numEventDataFields;
+                numEventDataFields++;
+                $('<div/>', {
+                    html: getDataField(id)
+                }).appendTo('#event_data_fields');
+            });
+
+            $("#remove_data_field").click(function(e) {
+
+            });
+
+            function getDataField(id) {
+                var eventDataConainer = document.createElement("div");
+                eventDataConainer.id = "eventData" + id;
+                var eventDataKey = document.createElement("input");
+                eventDataKey.type = "text";
+                eventDataKey.id = "eventDataKey" + id;
+                var eventDataValue = document.createElement("input");
+                eventDataValue.type = "text";
+                eventDataValue.id = "eventDataValue" + id;
+                eventDataConainer.appendChild(eventDataKey);
+                eventDataConainer.appendChild(eventDataValue);
+                return eventDataConainer;
+            }
         };
     </script>
 </head>
@@ -26,6 +57,10 @@
 <div id="event_adder">
     <label for="eventName">Event Name:</label><input id="eventName" name="eventName" type="text"><br>
     <label for="eventType">Event Type:</label><input id="eventType" name="eventType" type="text"><br>
+    <p>Event Data:</p>
+    <div id="event_data_fields">
+    </div>
+    <input id="remove_data_field" type="button" value="-"/><input id="add_data_field" type="button" value="+"/><br>
     <input id="register_event_button" type="button" value="Register Event">
 </div>
 </body>
