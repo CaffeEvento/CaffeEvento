@@ -1,38 +1,28 @@
 package impl.services.Scheduler_Service.Scheduling_Services;
 
-import api.events.Event;
-import api.events.EventHandler;
-import api.events.EventSink;
 import api.events.EventSource;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.utils.EventBuilder;
-import impl.events.EventImpl;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
 import impl.services.Scheduler_Service.SchedulerService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.triggers.CronTriggerImpl;
+import org.quartz.impl.triggers.SimpleTriggerImpl;
 
 import java.text.ParseException;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static org.quartz.JobBuilder.newJob;
 
 /**
  * Created by eric on 7/28/16.
  */
-public class CRONScheduler extends AbstractService{
-    public static final String FORMAT = "CRON";
+public class ConstantIntervalScheduler extends AbstractService{
+    public static final String FORMAT = "ConstantInterval";
     private final AbstractSchedulingService delegateScheduler;
     private Scheduler theScheduler;
     private final EventSource eventGenerator = new EventSourceImpl();
 
-    CRONScheduler(EventQueueInterface eventQueueInterface){
+    ConstantIntervalScheduler(EventQueueInterface eventQueueInterface){
         super(eventQueueInterface);
         getEventQueueInterface().addEventSource(eventGenerator);
         try {
@@ -51,29 +41,17 @@ public class CRONScheduler extends AbstractService{
         delegateScheduler = new AbstractSchedulingService(eventQueueInterface, FORMAT, theScheduler) {
             @Override
             protected boolean validateArgs(String args){
-                return CronExpression.isValidExpression(args);
+                return false;
             }
 
             @Override
             protected Trigger createTrigger(String args) {
-                CronTriggerImpl cronTrigger = new CronTriggerImpl();
-                try {
-                    cronTrigger.setCronExpression(args);
-                }catch(ParseException e){
-                    log.error(e);
-                }
-                return cronTrigger;
+                return null;
             }
         };
     }
 
     public int countActiveJobs(){
         return delegateScheduler.countActiveJobs();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        theScheduler.shutdown(true);
     }
 }
