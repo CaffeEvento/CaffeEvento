@@ -194,6 +194,16 @@ public final class EventHandlerImpl implements EventHandler {
         }
 
         /**
+         * Creates and returns a copy of the event handler builder without the handlers
+         * @return a copy of this EventHandlerBuilder containing only the criterion created by this builder
+         */
+        public EventHandlerBuilder cloneOnlyCriteria() {
+            EventHandlerBuilder clone = EventHandler.create();
+            clone.eventHandlerData = new EventHandlerData(this.eventHandlerData);
+            return clone;
+        }
+
+        /**
          * Builds the event handler builder with the event data
          * @return EventHandler containing data created by this builder
          */

@@ -3,6 +3,7 @@ package impl.events.event_queue;
 import api.events.Event;
 import impl.events.event_queue.SynchronousEventQueue;
 
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
@@ -16,6 +17,11 @@ public class FilteredEventQueue extends SynchronousEventQueue {
     }
 
     public FilteredEventQueue(Predicate<Event> acceptCriteria) {
+        this(acceptCriteria, c->{});
+    }
+
+    public FilteredEventQueue(Predicate<Event> acceptCriteria, Consumer<Event> eventConsumer) {
+        super(eventConsumer);
         this.eventAcceptCriteria = acceptCriteria;
     }
 
