@@ -3,6 +3,10 @@ package impl.services.Scheduler_Service.Scheduling_Services;
 import api.events.EventSource;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.utils.EventBuilder;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import com.sun.istack.internal.Nullable;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
 import impl.services.Scheduler_Service.SchedulerService;
@@ -12,6 +16,8 @@ import org.quartz.impl.triggers.CronTriggerImpl;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 
 import java.text.ParseException;
+import java.util.Date;
+import java.util.Optional;
 
 /**
  * Created by eric on 7/28/16.
@@ -41,14 +47,44 @@ public class ConstantIntervalScheduler extends AbstractService{
         delegateScheduler = new AbstractSchedulingService(eventQueueInterface, FORMAT, theScheduler) {
             @Override
             protected boolean validateArgs(String args){
-                return false;
+                try {
+                    return Optional.ofNullable((new GsonBuilder()).create().fromJson(args, Arguments.class)).isPresent();
+                } catch (JsonSyntaxException e){
+                    return false;
+                }
             }
 
             @Override
             protected Trigger createTrigger(String args) {
-                return null;
+                SimpleTriggerImpl trigger = new SimpleTriggerImpl();
+                Optional.ofNullable((new GsonBuilder()).create().fromJson(args, Arguments.class))
+                        .ifPresent(arguments -> {
+                            if(arguments.Repeats != null){
+                                trigger.setTimesTriggered(arguments.Repeats);
+                            }
+                            if(arguments.Period != null){
+                                trigger.setRepeatInterval(arguments.Period);
+                            }
+                            if(arguments.StartTime != null){
+                                trigger.setStartTime(arguments.StartTime);
+                            }
+                            if(arguments.EndTime != null){
+                                trigger.setEndTime(arguments.EndTime);
+                            }
+                        });
+                return trigger;
             }
         };
+    }
+
+    public class Arguments{
+        public Date StartTime = null;
+        public Long Period = null;
+        public Date EndTime = null;
+        public Integer Repeats = null;
+        public String toJson(){
+            return (new GsonBuilder()).create().toJson(this);
+        }
     }
 
     public int countActiveJobs(){
