@@ -73,7 +73,7 @@ abstract public class AbstractSchedulingService extends AbstractService {
         return activeJobs.size();
     }
 
-    private class absScheduleException extends RuntimeException {
+    protected class absScheduleException extends RuntimeException {
         absScheduleException(String message) {
             super(message);
         }

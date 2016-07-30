@@ -3,19 +3,15 @@ package impl.services.Scheduler_Service.Scheduling_Services;
 import api.events.EventSource;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.utils.EventBuilder;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import com.sun.istack.internal.Nullable;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
 import impl.services.Scheduler_Service.SchedulerService;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.triggers.CronTriggerImpl;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Optional;
 
@@ -57,21 +53,26 @@ public class ConstantIntervalScheduler extends AbstractService{
             @Override
             protected Trigger createTrigger(String args) {
                 SimpleTriggerImpl trigger = new SimpleTriggerImpl();
-                Optional.ofNullable((new GsonBuilder()).create().fromJson(args, Arguments.class))
-                        .ifPresent(arguments -> {
-                            if(arguments.Repeats != null){
-                                trigger.setTimesTriggered(arguments.Repeats);
-                            }
-                            if(arguments.Period != null){
-                                trigger.setRepeatInterval(arguments.Period);
-                            }
-                            if(arguments.StartTime != null){
-                                trigger.setStartTime(arguments.StartTime);
-                            }
-                            if(arguments.EndTime != null){
-                                trigger.setEndTime(arguments.EndTime);
-                            }
-                        });
+                try {
+                    Optional.ofNullable((new GsonBuilder()).create().fromJson(args, Arguments.class))
+                            .ifPresent(arguments -> {
+                                if (arguments.Repeats != null) {
+                                    trigger.setTimesTriggered(arguments.Repeats);
+                                }
+                                if (arguments.Period != null) {
+                                    trigger.setRepeatInterval(arguments.Period);
+                                }
+                                if (arguments.StartTime != null) {
+                                    trigger.setStartTime(arguments.StartTime);
+                                }
+                                if (arguments.EndTime != null) {
+                                    trigger.setEndTime(arguments.EndTime);
+                                }
+                            });
+                }catch(JsonSyntaxException e){
+                    log.error(e);
+                    throw new absScheduleException("Not able to parse args.");
+                }
                 return trigger;
             }
         };
