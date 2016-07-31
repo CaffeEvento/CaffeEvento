@@ -1,4 +1,4 @@
-package impl.services.Log_Service;
+package impl.services.log_service;
 
 import api.events.EventHandler;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;

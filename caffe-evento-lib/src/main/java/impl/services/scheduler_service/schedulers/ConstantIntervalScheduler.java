@@ -1,4 +1,4 @@
-package impl.services.Scheduler_Service.Scheduling_Services;
+package impl.services.scheduler_service.schedulers;
 
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import com.google.gson.GsonBuilder;
@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Created by eric on 7/28/16.
  */
-public class ConstantIntervalScheduler extends AbstractSchedulingService {
+public class ConstantIntervalScheduler extends AbstractScheduler {
     public static final String format = "ConstantInterval";
 
     ConstantIntervalScheduler(EventQueueInterface eventQueueInterface, Scheduler scheduler){

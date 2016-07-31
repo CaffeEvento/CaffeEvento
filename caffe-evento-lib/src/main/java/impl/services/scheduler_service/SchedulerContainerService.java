@@ -1,4 +1,4 @@
-package impl.services.Scheduler_Service;
+package impl.services.scheduler_service;
 
 import api.events.Event;
 import api.events.EventHandler;
@@ -8,7 +8,7 @@ import api.utils.EventBuilder;
 import impl.events.EventHandlerImpl.EventHandlerBuilder;
 import impl.events.EventSourceImpl;
 import impl.events.event_queue.FirstHandlerOnly;
-import impl.services.Container_Services.ServiceContainerEventQueue;
+import impl.services.container_service.ServiceContainerEventQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 /**
  * Created by eric on 7/22/16.
  */
-public class SchedulerService extends ServiceContainerEventQueue {
+public class SchedulerContainerService extends ServiceContainerEventQueue {
     /* constants */
         /* mandatory fields */
         public static final String FORMAT = "SCHEDULER_FORMAT";
@@ -35,11 +35,11 @@ public class SchedulerService extends ServiceContainerEventQueue {
         public static final String BAD_SCHEDULER = "SCHEDULER_FAILURE";
 
     /* finals */
-        private static final Log log = LogFactory.getLog(SchedulerService.class);
+        private static final Log log = LogFactory.getLog(SchedulerContainerService.class);
         private final EventSource eventGenerator = new EventSourceImpl();
 
     /* code */
-    SchedulerService(EventQueueInterface eventQueueInterface){
+    SchedulerContainerService(EventQueueInterface eventQueueInterface){
         super(eventQueueInterface, FirstHandlerOnly::new);
     }
 
