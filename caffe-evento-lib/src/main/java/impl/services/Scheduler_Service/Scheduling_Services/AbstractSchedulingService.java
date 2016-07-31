@@ -12,10 +12,7 @@ import impl.services.Scheduler_Service.SchedulerService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.triggers.CronTriggerImpl;
 
-import java.text.ParseException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +22,7 @@ import static org.quartz.JobBuilder.newJob;
  * Created by eric on 7/28/16.
  */
 abstract public class AbstractSchedulingService extends AbstractService {
-    private final String FORMAT;
+    private final String format;
 
     protected Log log = LogFactory.getLog(getClass());
     private Scheduler scheduler;
@@ -37,13 +34,14 @@ abstract public class AbstractSchedulingService extends AbstractService {
     //
     abstract protected boolean validateArgs(String args);
 
-    AbstractSchedulingService(EventQueueInterface eventQueueInterface, String FORMAT, Scheduler externScheduler) {
+    AbstractSchedulingService(EventQueueInterface eventQueueInterface, String format, Scheduler externSchueduler) {
         super(eventQueueInterface);
-        this.FORMAT = FORMAT;
+        this.scheduler = externSchueduler;
+        this.format = format;
         getEventQueueInterface().addEventSource(eventGenerator);
             // registering the event handler is inside the try block so that it fails if the scheduler cannot start
             getEventQueueInterface().addEventHandler(EventHandler.create()
-                    .eventData(SchedulerService.FORMAT, FORMAT)
+                    .eventData(SchedulerService.FORMAT, this.format)
                     .hasDataKey(SchedulerService.ARGS)
                     .hasDataKey(SchedulerService.SCHEDULED_ACTION)
                     .hasDataKey(SchedulerService.SCHEDULER_ID_FIELD)
@@ -55,7 +53,7 @@ abstract public class AbstractSchedulingService extends AbstractService {
                                 new Schedule(event.getEventField(SchedulerService.ARGS),
                                         event.getEventField(SchedulerService.SCHEDULED_ACTION),
                                         event.getEventField(SchedulerService.SCHEDULER_ID_FIELD));
-                            }catch(absScheduleException e){
+                            }catch(CESchedulerException e){
                                 log.error(e);
                                 SchedulerService.couldNotSchedule(event, "Problem with scheduling: ")
                                         .data("ErrorMessage",e.toString())
@@ -73,8 +71,8 @@ abstract public class AbstractSchedulingService extends AbstractService {
         return activeJobs.size();
     }
 
-    protected class absScheduleException extends RuntimeException {
-        absScheduleException(String message) {
+    protected class CESchedulerException extends RuntimeException {
+        CESchedulerException(String message) {
             super(message);
         }
     }
@@ -107,9 +105,9 @@ abstract public class AbstractSchedulingService extends AbstractService {
 
             try {
                 scheduler.scheduleJob(job, trigger);
-            }catch(SchedulerException e) {
+            }catch(org.quartz.SchedulerException e) {
                 log.error(e);
-                throw new absScheduleException("Problem Scheduling Action");
+                throw new CESchedulerException("Problem Scheduling Action");
             }
             // Register a handler to cancel the event
             EventHandler cancel = EventHandler.create()
@@ -118,7 +116,7 @@ abstract public class AbstractSchedulingService extends AbstractService {
                     .eventHandler(event -> {
                         try {
                             scheduler.deleteJob(job.getKey());
-                        }catch(SchedulerException e){
+                        }catch(org.quartz.SchedulerException e){
                             log.error(e);
                         }
                         getEventQueueInterface().removeEventHandler(activeJobs
