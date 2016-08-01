@@ -25,18 +25,10 @@ public class ConstantIntervalScheduler extends AbstractScheduler {
         try {
             Optional.ofNullable((new GsonBuilder()).create().fromJson(args, Arguments.class))
                     .ifPresent(arguments -> {
-                        if (arguments.Repeats != null) {
-                            trigger.setTimesTriggered(arguments.Repeats);
-                        }
-                        if (arguments.Period != null) {
-                            trigger.setRepeatInterval(arguments.Period);
-                        }
-                        if (arguments.StartTime != null) {
-                            trigger.setStartTime(arguments.StartTime);
-                        }
-                        if (arguments.EndTime != null) {
-                            trigger.setEndTime(arguments.EndTime);
-                        }
+                        Optional.ofNullable(arguments.getRepeats()).ifPresent(trigger::setTimesTriggered);
+                        Optional.ofNullable(arguments.getPeriod()).ifPresent(trigger::setRepeatInterval);
+                        Optional.ofNullable(arguments.getStartTime()).ifPresent(trigger::setStartTime);
+                        Optional.ofNullable(arguments.getEndTime()).ifPresent(trigger::setEndTime);
                     });
         } catch(JsonSyntaxException e){
             log.error(e);
@@ -55,12 +47,59 @@ public class ConstantIntervalScheduler extends AbstractScheduler {
     }
 
     public class Arguments{
-        public Date StartTime = null;
-        public Long Period = null;
-        public Date EndTime = null;
-        public Integer Repeats = null;
+        private Date startTime = null;
+        private Long period = null;
+        private Date endTime = null;
+        private Integer repeats = null;
+        public Arguments() {}
+        public Arguments(Date startTime, Long period, Date endTime, Integer repeats) {
+            this.startTime = startTime;
+            this.period = period;
+            this.endTime = endTime;
+            this.repeats = repeats;
+        }
         public String toJson(){
             return (new GsonBuilder()).create().toJson(this);
+        }
+        public Date getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(Date startTime) {
+            this.startTime = startTime;
+        }
+
+        public Long getPeriod() {
+            return period;
+        }
+
+        public void setPeriod(long period) {
+            if (period >= 0) {
+                this.period = period;
+            } else {
+                throw new IllegalArgumentException("Period cannot be negative!");
+            }
+        }
+
+        public Date getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(Date endTime) {
+            this.endTime = endTime;
+        }
+
+        public Integer getRepeats() {
+            return repeats;
+        }
+
+        public void setRepeats(int repeats) {
+            if (repeats > 0) {
+                this.repeats = repeats;
+            } else {
+                throw new IllegalArgumentException("Repeats shan't be zero or less than zero!");
+            }
+
         }
     }
 }

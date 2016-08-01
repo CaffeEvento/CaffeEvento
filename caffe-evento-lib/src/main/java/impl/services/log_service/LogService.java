@@ -1,10 +1,17 @@
 package impl.services.log_service;
 
+import api.events.Event;
 import api.events.EventHandler;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.events.EventSource;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
+import org.apache.commons.logging.Log;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.logging.Level;
 
 /** TODO:Pair this Service with a logging utils
  * Created by eric on 7/20/16.
@@ -13,52 +20,84 @@ import impl.services.AbstractService;
 //TODO: Standardize how EventQueues handle unhandled events (defaultHandler)[probably do so in Utils.logger rather than here]
 public class LogService extends AbstractService{
     private EventSource eventGenerator =  new EventSourceImpl();
-    LogService(EventQueueInterface eventQueueInterface) {
+    private EventHandler logAllEventHandler = null;
+    private Log log;
+    public enum LogLevel {
+        INFO, WARN, ERROR, DEBUG, NO_TYPE;
+
+        public static LogLevel convert(String s) {
+            switch (s) {
+                case "INFO":
+                    return INFO;
+                case "WARN":
+                    return WARN;
+                case "ERROR":
+                    return ERROR;
+                case "DEBUG":
+                    return DEBUG;
+                default:
+                    return NO_TYPE;
+            }
+        }
+    }
+
+    LogService(EventQueueInterface eventQueueInterface, Log log) {
         super(eventQueueInterface);
         getEventQueueInterface().addEventSource(eventGenerator);
+        this.log = log;
 
-        //TODO: Decide if the logging procedure may be configured by events.
         getEventQueueInterface().addEventHandler(EventHandler.create()
+                .eventType("ENABLE_LOG_ALL")
                 .eventHandler(theEvent -> {
-                    // TODO: Set up a size limited queue/logger that records the latest N events to pass the event handler.
-                }).build()
-        );
+                    Optional.ofNullable(logAllEventHandler).ifPresent(getEventQueueInterface()::removeEventHandler);
+                    logAllEventHandler = EventHandler.create().eventHandler(this::logMessage).build();
+                    getEventQueueInterface().addEventHandler(logAllEventHandler);
+                }).build());
+
+        getEventQueueInterface().addEventHandler(EventHandler.create()
+            .eventType("DISABLE_LOG_ALL")
+            .eventHandler(theEvent -> {
+                Optional.ofNullable(logAllEventHandler).ifPresent(getEventQueueInterface()::removeEventHandler);
+                logAllEventHandler = null;
+            }).build());
+
 
         getEventQueueInterface().addEventHandler(EventHandler.create()
                 .eventType("LOG")
+                .hasDataKey("LOG_LEVEL")
+                .hasDataKey("MESSAGE")
                 .eventHandler(theEvent -> {
-                    //TODO:Figure out how to log events of type:LOG
-                    //log the event
-                }).build()
-        );
-
-        getEventQueueInterface().addEventHandler(EventHandler.create()
-                .eventType("ERROR")
-                .eventHandler(theEvent -> {
-                    //TODO:Figure out how to log events of type:ERROR, should probably include a list of the latest events as well.
-                    //log with special treatment
-                }).build()
-        );
-
-        getEventQueueInterface().addEventHandler(EventHandler.create()
-                .eventType("GET_LOG")
-                .eventHandler(theEvent -> {
-                    //TODO: Return the log when requested
-                }).build()
-        );
-
-        getEventQueueInterface().addEventHandler(EventHandler.create()
-                .eventType("GET_ERROR")
-                .eventHandler(theEvent -> {
-                    //TODO: Return the log of all recent errors when requested, limit errors to predefined amount
-                }).build()
-        );
-
-        getEventQueueInterface().addEventHandler(EventHandler.create()
-                .eventType("GET_RECENT")
-                .eventHandler(theEvent -> {
-                    //TODO: Return all recent events to occur, limit to specified size
+                    logMessage(LogLevel.convert(theEvent.getEventField("LOG_LEVEL")),
+                            theEvent.getEventField("MESSAGE"));
                 }).build()
         );
     }
+
+    private void logMessage(Event e) {
+        logMessage(LogLevel.INFO, e.encodeEvent());
+    }
+
+    private void logMessage(LogLevel level, String message) {
+        switch (level) {
+            case INFO:
+                log.info(message);
+                break;
+            case WARN:
+                log.warn(message);
+                break;
+            case ERROR:
+                log.error(message);
+                break;
+            case DEBUG:
+                log.debug(message);
+                break;
+            case NO_TYPE:
+                log.error("Gave an incorrect type for log: " + message);
+                break;
+            default:
+                log.error("HOW THE FUCK?" + message);
+        }
+    }
+
+
 }
