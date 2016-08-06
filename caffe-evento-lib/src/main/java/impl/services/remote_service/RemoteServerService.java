@@ -49,7 +49,6 @@ public final class RemoteServerService extends AbstractService {
                     OptionalConsumer.of(EventHandler.fromJson(event.getEventField("eventHandlerDetails")))
                             .ifPresent(h->getEventQueueInterface().addEventHandler(h))
                             .ifNotPresent(() -> log.debug("received unparsable event"));
-                    //TODO: Code does not log that it recieved a bad event handler when it runs this section, please advise.
                 })
                 .build());
 
@@ -63,7 +62,6 @@ public final class RemoteServerService extends AbstractService {
                         getEventQueueInterface().removeEventHandler(UUID.fromString(event.getEventField("eventHandlerId")));
                     }catch(IllegalArgumentException e) {
                         log.debug("Recieved unparseable UUID");
-                        //TODO: Log this error
                     }
                 })
                 .build());

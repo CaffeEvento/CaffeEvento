@@ -74,7 +74,6 @@ public class RemoteServerServiceTest {
         setUpServers();
         sourceServer.start();
         localServer.start();
-        //TODO: confirm whether behavior of "Event.decodeEvent(req.getReader()).orElse(null)" matches desired behavior
         receivingService.addService("Test Service", receivingId, "/receiveEvent",
                 (req, res) -> receivedEvents.add(Event.decodeEvent(req.getReader()).orElse(null)));
         Thread.sleep(100);
