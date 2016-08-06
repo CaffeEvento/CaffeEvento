@@ -13,11 +13,10 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.logging.Level;
 
-/** TODO:Pair this Service with a logging utils
+/**
  * Created by eric on 7/20/16.
  */
 
-//TODO: Standardize how EventQueues handle unhandled events (defaultHandler)[probably do so in Utils.logger rather than here]
 public class LogService extends AbstractService{
     private EventSource eventGenerator =  new EventSourceImpl();
     private EventHandler logAllEventHandler = null;
@@ -98,6 +97,4 @@ public class LogService extends AbstractService{
                 log.error("HOW THE FUCK?" + message);
         }
     }
-
-
 }

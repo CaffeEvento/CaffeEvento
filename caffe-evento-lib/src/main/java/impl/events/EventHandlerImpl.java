@@ -68,8 +68,18 @@ public final class EventHandlerImpl implements EventHandler {
     public Predicate<Event> getHandlerCondition() {
         List<Predicate<Event>> predicates = new ArrayList<>();
 
-        Optional.ofNullable(eventHandlerData.eventName).map(name -> (Predicate<Event>) event -> event.getEventName().equals(name)).ifPresent(predicates::add);
-        Optional.ofNullable(eventHandlerData.eventType).map(type -> (Predicate<Event>) event -> event.getEventType().equals(type)).ifPresent(predicates::add);
+        Optional.ofNullable(eventHandlerData.eventName)
+                .map(name ->
+                        (Predicate<Event>) event ->
+                                Optional.ofNullable(event.getEventName())
+                                        .map(n -> n.equals(name)).orElse(false))
+                .ifPresent(predicates::add);
+        Optional.ofNullable(eventHandlerData.eventType)
+                .map(type ->
+                        (Predicate<Event>) event ->
+                                Optional.ofNullable(event.getEventType())
+                                        .map(n -> n.equals(type)).orElse(false))
+                .ifPresent(predicates::add);
         for(Map.Entry<String, String> expectedEntry : eventHandlerData.eventData.entrySet()) {
             String eKey = expectedEntry.getKey();
             String eValue = expectedEntry.getValue();
