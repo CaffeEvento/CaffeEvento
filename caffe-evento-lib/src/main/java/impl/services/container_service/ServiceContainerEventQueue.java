@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Created by eric on 7/28/16.
@@ -22,7 +24,7 @@ public abstract class ServiceContainerEventQueue implements EventQueue, Service{
     protected static final EventSource elevateGenerator = new EventSourceImpl();
     private final Service delegateService;
     private final EventQueue delegateEventQueue;
-    protected final List<EventHandler> pullHandlers = new ArrayList<>();
+    protected final List<EventHandler> pullHandlers;
 
     public ServiceContainerEventQueue(EventQueueInterface eventQueueInterface, Function<Consumer<Event>, EventQueue> internalQueueGenerator) {
         delegateEventQueue = internalQueueGenerator.apply(this::elevate);
@@ -33,8 +35,14 @@ public abstract class ServiceContainerEventQueue implements EventQueue, Service{
             }
         };
         getEventQueueInterface().addEventSource(elevateGenerator);
-        pullCriteria().forEach(pullHandler->pullHandlers.add(pullHandler.cloneOnlyCriteria().eventHandler(this::receiveEvent).build()));
-        pullHandlers.forEach(pullHandler->getEventQueueInterface().addEventHandler(pullHandler));
+        //TODO: Repair this section, this part adds the possibility of double registering events on the event queue by registering all the event handlers on a list.
+        // This is only be prevented if the handlers are registered to a FirstHandlerOnly queue or all handlers registered return a mutually exclusive predicate.
+        pullHandlers = pullCriteria().stream()
+                .map(EventHandlerBuilder::cloneOnlyCriteria)
+                .map(eventHandlerBuilder -> eventHandlerBuilder.eventHandler(this::receiveEvent))
+                .map(EventHandlerBuilder::build)
+                .collect(Collectors.toList());
+        pullHandlers.forEach(getEventQueueInterface()::addEventHandler);
     }
 
     //Internal Methods
