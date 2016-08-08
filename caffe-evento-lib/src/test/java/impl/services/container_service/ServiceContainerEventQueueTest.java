@@ -76,8 +76,14 @@ public class ServiceContainerEventQueueTest {
                 .data("XD","Invalid")
                 .data("DX","Invalid")
                 .send(eventInjector);
+        EventBuilder.create()
+                .name("Unrecieved Event")
+                .type("Non-event")
+                .send(eventInjector);
 
-        assertEquals(eventCollector.getCollectedEvents().size(), 3, "External Events");
+        //eventCollector1.getCollectedEvents().stream().map(Event::encodeEvent).forEach(System.out::println);
+        //eventCollector.getCollectedEvents().stream().map(Event::encodeEvent).forEach(System.out::println);
+        assertEquals(eventCollector.getCollectedEvents().size(), 4, "External Events");
         assertEquals(eventCollector1.findEventsWithName("Injected Event").size(), 3, "Internal Events");
     }
 }

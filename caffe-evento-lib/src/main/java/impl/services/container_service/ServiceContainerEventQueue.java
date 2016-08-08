@@ -38,9 +38,9 @@ public abstract class ServiceContainerEventQueue implements EventQueue, Service{
         //TODO: Repair this section, this part adds the possibility of double registering events on the event queue by registering all the event handlers on a list.
         // This is only be prevented if the handlers are registered to a FirstHandlerOnly queue or all handlers registered return a mutually exclusive predicate.
         pullHandlers = pullCriteria().stream()
-                .map(EventHandlerBuilder::cloneOnlyCriteria)
+                .map(eventHandlerBuilder -> eventHandlerBuilder.cloneOnlyCriteria())
                 .map(eventHandlerBuilder -> eventHandlerBuilder.eventHandler(this::receiveEvent))
-                .map(EventHandlerBuilder::build)
+                .map(eventHandlerBuilder -> eventHandlerBuilder.build())
                 .collect(Collectors.toList());
         pullHandlers.forEach(getEventQueueInterface()::addEventHandler);
     }

@@ -161,7 +161,7 @@ public final class EventHandlerImpl implements EventHandler {
             this.socketEventReceiver = data.socketEventReceiver;
             this.eventData = new HashMap<>(data.eventData);
             this.eventDataLike = new HashMap<>(data.eventDataLike);
-            this.hasKeys = new HashSet<>(hasKeys);
+            this.hasKeys = new HashSet<>(data.hasKeys);
         }
 
         UUID getEventHandlerId() {
