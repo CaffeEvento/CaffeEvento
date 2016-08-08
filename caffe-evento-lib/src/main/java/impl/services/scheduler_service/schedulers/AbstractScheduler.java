@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.*;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.quartz.JobBuilder.newJob;
@@ -65,6 +66,15 @@ abstract public class AbstractScheduler extends AbstractService {
                                     .send(eventGenerator);
                         }
                     }).build());
+    }
+
+    public EventBuilder createScheduleEvent(String args, Event action, UUID schedulerID) {
+        return EventBuilder.create()
+                .type(SchedulerContainerService.SCHEDULE_EVENT)
+                .data(SchedulerContainerService.FORMAT, this.format)
+                .data(SchedulerContainerService.ARGS, args)
+                .data(SchedulerContainerService.SCHEDULED_ACTION, action.encodeEvent())
+                .data(SchedulerContainerService.SCHEDULER_ID_FIELD, schedulerID.toString());
     }
 
     public int countActiveJobs() {

@@ -10,11 +10,9 @@ import impl.events.EventHandlerImpl.EventHandlerBuilder;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -38,9 +36,9 @@ public abstract class ServiceContainerEventQueue implements EventQueue, Service{
         //TODO: Repair this section, this part adds the possibility of double registering events on the event queue by registering all the event handlers on a list.
         // This is only be prevented if the handlers are registered to a FirstHandlerOnly queue or all handlers registered return a mutually exclusive predicate.
         pullHandlers = pullCriteria().stream()
-                .map(eventHandlerBuilder -> eventHandlerBuilder.cloneOnlyCriteria())
+                .map(EventHandlerBuilder::cloneOnlyCriteria)
                 .map(eventHandlerBuilder -> eventHandlerBuilder.eventHandler(this::receiveEvent))
-                .map(eventHandlerBuilder -> eventHandlerBuilder.build())
+                .map(EventHandlerBuilder::build)
                 .collect(Collectors.toList());
         pullHandlers.forEach(getEventQueueInterface()::addEventHandler);
     }
