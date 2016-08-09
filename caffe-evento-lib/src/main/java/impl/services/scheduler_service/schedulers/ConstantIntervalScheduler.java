@@ -1,13 +1,18 @@
 package impl.services.scheduler_service.schedulers;
 
+import api.events.Event;
+import api.events.EventHandler;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.utils.EventBuilder;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import impl.services.scheduler_service.SchedulerContainerService;
 import org.quartz.*;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Created by eric on 7/28/16.

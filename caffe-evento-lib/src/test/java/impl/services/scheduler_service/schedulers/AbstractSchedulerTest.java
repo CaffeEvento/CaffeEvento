@@ -14,8 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.annotation.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.quartz.Scheduler;
-import org.quartz.Trigger;
+import org.quartz.*;
 import test_util.EventCollector;
 
 import java.util.UUID;
@@ -23,6 +22,7 @@ import java.util.function.Function;
 
 import static org.easymock.EasyMock.mock;
 import static org.easymock.EasyMock.expect;
+import static org.powermock.api.easymock.PowerMock.expectLastCall;
 import static org.powermock.api.easymock.PowerMock.replayAll;
 import static org.powermock.api.easymock.PowerMock.verifyAll;
 
@@ -35,12 +35,7 @@ public class AbstractSchedulerTest {
     private Scheduler mockScheduler;
     @Mock
     private Trigger mockTrigger;
-    @Mock
-    private Function<String, Trigger> mockTriggerCreator;
 
-    private Boolean mockValidate(String s) {
-        return true;
-    }
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
     private EventCollector eventCollector = new EventCollector();
@@ -51,12 +46,12 @@ public class AbstractSchedulerTest {
     private AbstractScheduler instance = new AbstractScheduler(eventQueueInterface, format, mockScheduler) {
         @Override
         protected Trigger createTrigger(String args) {
-            return mockTriggerCreator.apply(args);
+            return mockTrigger;
         }
 
         @Override
         protected boolean validateArgs(String args) {
-            return mockValidate(args);
+            return true;
         }
     };
 
@@ -78,7 +73,6 @@ public class AbstractSchedulerTest {
         String args = "args";
         Event scheduleEvent = instance.createScheduleEvent(args, action, SchedulerId).build();
 
-        expect(mockValidate(args)).andReturn(true);
         replayAll();
         eventInjector.registerEvent(scheduleEvent);
         verifyAll();

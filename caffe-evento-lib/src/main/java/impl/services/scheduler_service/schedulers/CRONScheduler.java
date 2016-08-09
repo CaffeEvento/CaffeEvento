@@ -1,10 +1,14 @@
 package impl.services.scheduler_service.schedulers;
 
+import api.events.Event;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
+import api.utils.EventBuilder;
+import impl.services.scheduler_service.SchedulerContainerService;
 import org.quartz.*;
 import org.quartz.impl.triggers.CronTriggerImpl;
 
 import java.text.ParseException;
+import java.util.UUID;
 
 import static org.quartz.JobBuilder.newJob;
 
