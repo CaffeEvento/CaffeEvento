@@ -5,20 +5,15 @@ import api.events.EventHandler;
 import api.events.EventSource;
 import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import api.utils.EventBuilder;
-import impl.events.EventImpl;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
-import impl.services.scheduler_service.SchedulerContainerService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.*;
+import impl.services.scheduler_service.Schedules;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
-import static org.quartz.JobBuilder.newJob;
+import static impl.services.scheduler_service.Schedules.*;
 
 /**
  * Created by eric on 7/28/16.
@@ -26,42 +21,40 @@ import static org.quartz.JobBuilder.newJob;
 abstract public class AbstractScheduler extends AbstractService {
     private final String format;
 
-    protected Log log = LogFactory.getLog(getClass());
-    private Scheduler scheduler;
-    private EventSource eventGenerator = new EventSourceImpl();
-    private Map<String, EventHandler> activeJobs = new ConcurrentHashMap<>();
+    protected EventSource eventGenerator = new EventSourceImpl();
+    private Map<String, Schedule> activeJobs = new ConcurrentHashMap<>();
 
-    //only these next functions should be unique between schedulers using quartz
-    abstract protected Trigger createTrigger(String args);
-    //
     abstract protected boolean validateArgs(String args);
+    abstract protected Schedule scheduleJob(String args, String action, String id);
 
-    AbstractScheduler(EventQueueInterface eventQueueInterface, String format, Scheduler externalScheduler) {
+    AbstractScheduler(EventQueueInterface eventQueueInterface, String format) {
         super(eventQueueInterface);
-        this.scheduler = externalScheduler;
         this.format = format;
         getEventQueueInterface().addEventSource(eventGenerator);
         getEventQueueInterface().addEventHandler(EventHandler.create()
-                .eventData(SchedulerContainerService.FORMAT, this.format)
-                .hasDataKey(SchedulerContainerService.ARGS)
-                .hasDataKey(SchedulerContainerService.SCHEDULED_ACTION)
-                .hasDataKey(SchedulerContainerService.SCHEDULER_ID_FIELD)
+                .eventData(FORMAT, this.format)
+                .hasDataKey(ARGS)
+                .hasDataKey(SCHEDULED_ACTION)
+                .hasDataKey(SCHEDULER_ID_FIELD)
                 .eventHandler(event -> {
-                    if(validateArgs(event.getEventField(SchedulerContainerService.ARGS)) &&
-                            Event.decodeEvent(event.getEventField(SchedulerContainerService.SCHEDULED_ACTION))
+                    if(validateArgs(event.getEventField(ARGS)) &&
+                            Event.decodeEvent(event.getEventField(SCHEDULED_ACTION))
                                     .isPresent()){
                         try {
-                            new Schedule(createTrigger(event.getEventField(SchedulerContainerService.ARGS)),
-                                    event.getEventField(SchedulerContainerService.SCHEDULED_ACTION),
-                                    event.getEventField(SchedulerContainerService.SCHEDULER_ID_FIELD));
+                            String id = event.getEventField(SCHEDULER_ID_FIELD);
+                            Schedule schedule = scheduleJob(event.getEventField(ARGS),
+                                    event.getEventField(SCHEDULED_ACTION),
+                                    id);
+                            activeJobs.put(id, schedule);
+                            getEventQueueInterface().addEventHandler(activeJobs.get(id).getCancelHandler());
                         }catch(CESchedulerException e){
                             log.error(e);
-                            SchedulerContainerService.couldNotSchedule(event, "Problem with scheduling: ")
+                            couldNotSchedule(event, "Problem with scheduling: ")
                                     .data("ErrorMessage", e.toString())
                                     .send(eventGenerator);
                         }
                     } else {
-                        SchedulerContainerService.couldNotSchedule(event, "Could not schedule; " +
+                        Schedules.couldNotSchedule(event, "Could not schedule; " +
                                 "Invalid ARGS or malformed action: ")
                                 .send(eventGenerator);
                     }
@@ -70,17 +63,17 @@ abstract public class AbstractScheduler extends AbstractService {
 
     public EventBuilder createScheduleEvent(String args, Event action, UUID schedulerId) {
         return EventBuilder.create()
-                .type(SchedulerContainerService.SCHEDULE_EVENT)
-                .data(SchedulerContainerService.FORMAT, this.format)
-                .data(SchedulerContainerService.ARGS, args)
-                .data(SchedulerContainerService.SCHEDULED_ACTION, action.encodeEvent())
-                .data(SchedulerContainerService.SCHEDULER_ID_FIELD, schedulerId.toString());
+                .type(SCHEDULE_EVENT)
+                .data(FORMAT, this.format)
+                .data(ARGS, args)
+                .data(SCHEDULED_ACTION, action.encodeEvent())
+                .data(SCHEDULER_ID_FIELD, schedulerId.toString());
     }
 
     public static EventBuilder createScheduleCancelEvent(UUID schedulerId) {
         return EventBuilder.create()
-                .type(SchedulerContainerService.UNSCHEDULE_EVENT)
-                .data(SchedulerContainerService.SCHEDULER_ID_FIELD, schedulerId.toString());
+                .type(UNSCHEDULE_EVENT)
+                .data(SCHEDULER_ID_FIELD, schedulerId.toString());
     }
 
     public int countActiveJobs() {
@@ -93,64 +86,38 @@ abstract public class AbstractScheduler extends AbstractService {
         }
     }
 
-    //this private class should be the only part which admits to being quartz dependent
-    private class Schedule {
-        private final JobDetail job;
-        private final Trigger theTrigger;
-        private final EventHandler cancel;
+    protected abstract class Schedule {
+        final EventHandler cancel;
+        final String id;
 
         public EventHandler getCancelHandler() {
             return cancel;
         }
 
-        class JobRegistersAction implements Job {
-            @Override
-            public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-                Event.decodeEvent(jobExecutionContext
-                                .getJobDetail()
-                                .getJobDataMap()
-                                .getString("action"))
-                        .map(EventImpl::new)
-                        .ifPresent(eventGenerator::registerEvent);
-            };
-        }
+        protected abstract void startJob();
+        protected abstract void cancelJob();
 
-        Schedule(Trigger trigger, String action, String Id){
-            job = newJob()
-                    .ofType(JobRegistersAction.class)
-                    .withIdentity(Id)
-                    .usingJobData("action", action)
-                    .build();
-            theTrigger = trigger;
+        Schedule(String Id) {
+            id = Id;
             // Start the job running
-            try {
-                scheduler.scheduleJob(job, theTrigger);
-            }catch(org.quartz.SchedulerException e) {
-                log.error(e);
-                throw new CESchedulerException("Problem Scheduling Action");
-            }
-            // Register a handler to cancel the event
+            startJob();
+            // Create a handler to cancel the event
             cancel = EventHandler.create()
-                    .eventType(SchedulerContainerService.UNSCHEDULE_EVENT)
-                    .eventData(SchedulerContainerService.SCHEDULER_ID_FIELD, Id)
+                    .eventType(UNSCHEDULE_EVENT)
+                    .eventData(SCHEDULER_ID_FIELD, id)
                     .eventHandler(event -> {
-                        try {
-                            scheduler.deleteJob(job.getKey());
-                        }catch(org.quartz.SchedulerException e){
-                            log.error(e);
-                        }
+                        this.cancelJob();
                         getEventQueueInterface().removeEventHandler(activeJobs
-                                .get(Id)
+                                .get(id)
+                                .getCancelHandler()
                                 .getEventHandlerId());
-                        activeJobs.remove(Id);
+                        activeJobs.remove(id);
                         EventBuilder.create()
-                                .type(SchedulerContainerService.UNSCHEDULE_EVENT)
-                                .name("Unscheduled" + Id)
-                                .data(SchedulerContainerService.SCHEDULER_ID_FIELD, Id)
+                                .type(UNSCHEDULED_ACTION)
+                                .name("Unscheduled" + id)
+                                .data(SCHEDULER_ID_FIELD, id)
                                 .send(eventGenerator);
                     }).build();
-            activeJobs.put(Id, cancel);
-            getEventQueueInterface().addEventHandler(cancel);
         }
     }
 }

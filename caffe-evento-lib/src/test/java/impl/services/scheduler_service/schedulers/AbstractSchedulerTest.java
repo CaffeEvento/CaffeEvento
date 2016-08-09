@@ -8,20 +8,21 @@ import api.utils.EventBuilder;
 import impl.events.EventSourceImpl;
 import impl.events.event_queue.SynchronousEventQueue;
 import impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
+import impl.services.scheduler_service.Schedules;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.annotation.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
-import org.quartz.*;
 import test_util.EventCollector;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static org.easymock.EasyMock.mock;
+import static impl.services.scheduler_service.schedulers.AbstractScheduler.createScheduleCancelEvent;
 import static org.easymock.EasyMock.expect;
+import static org.junit.Assert.assertEquals;
 import static org.powermock.api.easymock.PowerMock.expectLastCall;
 import static org.powermock.api.easymock.PowerMock.replayAll;
 import static org.powermock.api.easymock.PowerMock.verifyAll;
@@ -32,9 +33,11 @@ import static org.powermock.api.easymock.PowerMock.verifyAll;
 @RunWith(PowerMockRunner.class)
 public class AbstractSchedulerTest {
     @Mock
-    private Scheduler mockScheduler;
+    private Consumer<String> mockStart;
     @Mock
-    private Trigger mockTrigger;
+    private Consumer<String> mockStop;
+    @Mock
+    private Function<String, Boolean> mockValidator;
 
     private EventQueue eventQueue = new SynchronousEventQueue();
     private EventQueueInterface eventQueueInterface = new EventQueueInterfaceImpl();
@@ -43,15 +46,27 @@ public class AbstractSchedulerTest {
 
     private static String format = "FORMAT";
 
-    private AbstractScheduler instance = new AbstractScheduler(eventQueueInterface, format, mockScheduler) {
+    private AbstractScheduler instance = new AbstractScheduler(eventQueueInterface, format) {
         @Override
-        protected Trigger createTrigger(String args) {
-            return mockTrigger;
+        protected Schedule scheduleJob(String args, String action, String id) {
+            return new testSchedule(args, action, id);
         }
 
         @Override
         protected boolean validateArgs(String args) {
-            return true;
+            return mockValidator.apply(args);
+        }
+
+        class testSchedule extends Schedule {
+            protected void cancelJob() {
+                mockStop.accept(id);
+            }
+            protected void startJob() {
+                mockStart.accept(id);
+            }
+            testSchedule(String args, String action, String id) {
+                super(id);
+            }
         }
     };
 
@@ -62,9 +77,9 @@ public class AbstractSchedulerTest {
         eventQueue.addEventSource(eventInjector);
     }
 
-    @Ignore
     @Test
     public void testAbstractScheduler() {
+        // Things
         Event action = EventBuilder.create()
                 .name("ActionEvent")
                 .type("Test")
@@ -72,16 +87,24 @@ public class AbstractSchedulerTest {
         UUID SchedulerId = UUID.randomUUID();
         String args = "args";
         Event scheduleEvent = instance.createScheduleEvent(args, action, SchedulerId).build();
+        Event cancelEvent = createScheduleCancelEvent(SchedulerId).build();
 
+        // Expectations
+        expect(mockValidator.apply(args)).andReturn(true).anyTimes();
+        mockStart.accept(SchedulerId.toString());
+        expectLastCall();
+        mockStop.accept(SchedulerId.toString());
+        expectLastCall();
+
+        // Actions
         replayAll();
         eventInjector.registerEvent(scheduleEvent);
+        assertEquals("wrong number of jobs", instance.countActiveJobs(), 1);
+        assertEquals("wrong number of events", eventCollector.getCollectedEvents().size(), 1);
+        eventInjector.registerEvent(cancelEvent);
+        assertEquals("jobs not all canceled", instance.countActiveJobs(), 0);
+        assertEquals("wrong number of events after cancel", eventCollector.getCollectedEvents().size(), 3);
+        assertEquals("did not find unsceduled notification", eventCollector.findEventsWithType(Schedules.UNSCHEDULED_ACTION).size(), 1);
         verifyAll();
     }
-
-    @Ignore
-    @Test
-    public void countActiveJobs() {
-
-    }
-
 }

@@ -15,7 +15,7 @@ import static org.quartz.JobBuilder.newJob;
 /**
  * Created by eric on 7/28/16.
  */
-public class CRONScheduler extends AbstractScheduler {
+public class CRONScheduler extends AbstractQuartzScheduler {
     public static final String format = "CRON";
 
     CRONScheduler(EventQueueInterface eventQueueInterface, Scheduler scheduler){
@@ -29,6 +29,7 @@ public class CRONScheduler extends AbstractScheduler {
             cronTrigger.setCronExpression(args);
         }catch(ParseException e){
             log.error(e);
+            throw new CESchedulerException("Unable to parse args.");
         }
         return cronTrigger;
     }

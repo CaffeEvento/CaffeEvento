@@ -9,6 +9,8 @@ import api.services.Service;
 import impl.events.EventHandlerImpl.EventHandlerBuilder;
 import impl.events.EventSourceImpl;
 import impl.services.AbstractService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -18,13 +20,15 @@ import java.util.stream.Collectors;
 /**
  * Created by eric on 7/28/16.
  */
-public abstract class ServiceContainerEventQueue implements EventQueue, Service{
+public abstract class ServiceContainerEventQueue implements EventQueue, Service {
+    protected Log log;
     protected static final EventSource elevateGenerator = new EventSourceImpl();
     private final Service delegateService;
     private final EventQueue delegateEventQueue;
     protected final List<EventHandler> pullHandlers;
 
     public ServiceContainerEventQueue(EventQueueInterface eventQueueInterface, Function<Consumer<Event>, EventQueue> internalQueueGenerator) {
+        log = LogFactory.getLog(getClass());
         delegateEventQueue = internalQueueGenerator.apply(this::elevate);
         delegateService = new AbstractService(eventQueueInterface) {
             @Override

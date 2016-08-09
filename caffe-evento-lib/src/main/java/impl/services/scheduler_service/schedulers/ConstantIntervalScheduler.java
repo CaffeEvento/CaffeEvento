@@ -17,7 +17,7 @@ import java.util.UUID;
 /**
  * Created by eric on 7/28/16.
  */
-public class ConstantIntervalScheduler extends AbstractScheduler {
+public class ConstantIntervalScheduler extends AbstractQuartzScheduler {
     public static final String format = "ConstantInterval";
 
     ConstantIntervalScheduler(EventQueueInterface eventQueueInterface, Scheduler scheduler){
