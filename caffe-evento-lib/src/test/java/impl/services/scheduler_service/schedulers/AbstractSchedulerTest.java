@@ -99,12 +99,12 @@ public class AbstractSchedulerTest {
         // Actions
         replayAll();
         eventInjector.registerEvent(scheduleEvent);
-        assertEquals("wrong number of jobs", instance.countActiveJobs(), 1);
-        assertEquals("wrong number of events", eventCollector.getCollectedEvents().size(), 1);
+        assertEquals("wrong number of jobs", 1, instance.countActiveJobs());
+        assertEquals("wrong number of events", 1, eventCollector.getCollectedEvents().size());
         eventInjector.registerEvent(cancelEvent);
-        assertEquals("jobs not all canceled", instance.countActiveJobs(), 0);
-        assertEquals("wrong number of events after cancel", eventCollector.getCollectedEvents().size(), 3);
-        assertEquals("did not find unsceduled notification", eventCollector.findEventsWithType(Schedules.UNSCHEDULED_ACTION).size(), 1);
+        assertEquals("jobs not all canceled", 0, instance.countActiveJobs());
+        assertEquals("wrong number of events after cancel", 3, eventCollector.getCollectedEvents().size());
+        assertEquals("did not find unscheduled notification", 1, eventCollector.findEventsWithType(Schedules.UNSCHEDULED_ACTION).size());
         verifyAll();
     }
 }

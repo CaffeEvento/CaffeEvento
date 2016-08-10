@@ -21,13 +21,13 @@ import static impl.services.scheduler_service.Schedules.*;
 abstract public class AbstractScheduler extends AbstractService {
     private final String format;
 
-    protected EventSource eventGenerator = new EventSourceImpl();
+    protected final EventSource eventGenerator = new EventSourceImpl();
     private Map<String, Schedule> activeJobs = new ConcurrentHashMap<>();
 
     abstract protected boolean validateArgs(String args);
     abstract protected Schedule scheduleJob(String args, String action, String id);
 
-    AbstractScheduler(EventQueueInterface eventQueueInterface, String format) {
+    public AbstractScheduler(EventQueueInterface eventQueueInterface, String format) {
         super(eventQueueInterface);
         this.format = format;
         getEventQueueInterface().addEventSource(eventGenerator);
@@ -45,6 +45,7 @@ abstract public class AbstractScheduler extends AbstractService {
                             Schedule schedule = scheduleJob(event.getEventField(ARGS),
                                     event.getEventField(SCHEDULED_ACTION),
                                     id);
+                            schedule.startJob();
                             activeJobs.put(id, schedule);
                             getEventQueueInterface().addEventHandler(activeJobs.get(id).getCancelHandler());
                         }catch(CESchedulerException e){
@@ -99,8 +100,6 @@ abstract public class AbstractScheduler extends AbstractService {
 
         Schedule(String Id) {
             id = Id;
-            // Start the job running
-            startJob();
             // Create a handler to cancel the event
             cancel = EventHandler.create()
                     .eventType(UNSCHEDULE_EVENT)

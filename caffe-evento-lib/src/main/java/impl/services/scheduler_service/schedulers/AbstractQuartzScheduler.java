@@ -5,6 +5,8 @@ import api.events.event_queue.event_queue_interface.EventQueueInterface;
 import impl.events.EventImpl;
 import org.quartz.*;
 
+import java.util.Optional;
+
 import static org.quartz.JobBuilder.newJob;
 
 /**
@@ -19,27 +21,30 @@ public abstract class AbstractQuartzScheduler extends AbstractScheduler {
         return new quartzSchedule(args, action, id);
     }
 
-    AbstractQuartzScheduler(EventQueueInterface eventQueueInterface, String format, Scheduler scheduler){
+    public AbstractQuartzScheduler(EventQueueInterface eventQueueInterface, String format, Scheduler scheduler){
         super(eventQueueInterface, format);
         this.scheduler = scheduler;
+    }
+
+    // Job to schedule with quartz
+    public class JobRegistersAction implements Job {
+        @Override
+        public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+            System.err.println("Oops");
+            Optional<Event> action = Event.decodeEvent(jobExecutionContext
+                    .getJobDetail()
+                    .getJobDataMap()
+                    .getString("action"))
+                    .map(EventImpl::new);
+//            log.debug(action.map(Event::encodeEvent).orElse("T"));
+            action.ifPresent(eventGenerator::registerEvent); //TODO: eventGenerator is provided by AbstractScheduler, this is causing headaches during testing
+        }
     }
 
     // implementation of Schedule for Quartz
     private class quartzSchedule extends Schedule {
         private final JobDetail job;
         private final Trigger theTrigger;
-
-        class JobRegistersAction implements Job {
-            @Override
-            public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-                Event.decodeEvent(jobExecutionContext
-                        .getJobDetail()
-                        .getJobDataMap()
-                        .getString("action"))
-                        .map(EventImpl::new)
-                        .ifPresent(eventGenerator::registerEvent);
-            }
-        }
 
         @Override
         protected void cancelJob() {
@@ -60,7 +65,7 @@ public abstract class AbstractQuartzScheduler extends AbstractScheduler {
             }
         }
 
-        quartzSchedule(String args, String action, String Id) {
+        public quartzSchedule(String args, String action, String Id) {
             super(Id);
             job = newJob()
                     .ofType(JobRegistersAction.class)

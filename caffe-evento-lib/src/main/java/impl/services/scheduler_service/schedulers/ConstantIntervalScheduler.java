@@ -14,13 +14,16 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
+import static org.quartz.TriggerBuilder.newTrigger;
+
 /**
  * Created by eric on 7/28/16.
  */
 public class ConstantIntervalScheduler extends AbstractQuartzScheduler {
     public static final String format = "ConstantInterval";
 
-    ConstantIntervalScheduler(EventQueueInterface eventQueueInterface, Scheduler scheduler){
+    public ConstantIntervalScheduler(EventQueueInterface eventQueueInterface, Scheduler scheduler){
         super(eventQueueInterface, format, scheduler);
     }
 
@@ -104,7 +107,6 @@ public class ConstantIntervalScheduler extends AbstractQuartzScheduler {
             } else {
                 throw new IllegalArgumentException("Repeats shan't be zero or less than zero!");
             }
-
         }
     }
 }

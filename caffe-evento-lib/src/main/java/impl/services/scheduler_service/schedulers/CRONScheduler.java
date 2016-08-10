@@ -18,7 +18,7 @@ import static org.quartz.JobBuilder.newJob;
 public class CRONScheduler extends AbstractQuartzScheduler {
     public static final String format = "CRON";
 
-    CRONScheduler(EventQueueInterface eventQueueInterface, Scheduler scheduler){
+    public CRONScheduler(EventQueueInterface eventQueueInterface, Scheduler scheduler){
         super(eventQueueInterface, format, scheduler);
     }
 
