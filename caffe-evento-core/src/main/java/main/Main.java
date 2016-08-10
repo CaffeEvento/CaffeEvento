@@ -2,6 +2,7 @@ package main;
 
 import api.service_loader.CEServiceLoader;
 
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -28,47 +29,15 @@ public class Main {
     public static void main(String[] args) throws Exception {
         WatchService watcher = FileSystems.getDefault().newWatchService();
         PathMatcher jarMatcher = FileSystems.getDefault().getPathMatcher("glob:**.jar");
-        Path dir = Paths.get(System.getProperty(WATCH_DIR_VAR, "./bundles"));
+        Path dir = Paths.get(System.getProperty(WATCH_DIR_VAR, "/home/chris/IdeaProjects/CaffeEvento/bundles/caffe_evento_example_service-1.0-SNAPSHOT.jar")).toAbsolutePath();
         // Register this before doing some work on the directory
         // so that if anything is added after we look then it will be added in the event loop
-        dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+//        dir.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
-        // Add all the files that are already there
-        Files.walk(dir)
-                .map(Path::toAbsolutePath)
-                .filter(jarMatcher::matches)
-                .forEach(Main::handleAddJar);
-
-        // Submit long-running job to thread pool to handle all new jars being added
-        threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    try {
-                        WatchKey key = watcher.take();
-                        for (WatchEvent<?> event : key.pollEvents()) {
-                            WatchEvent.Kind<?> kind = event.kind();
-                            if (kind == OVERFLOW) {
-                                continue;
-                            }
-                            WatchEvent<Path> ev = (WatchEvent<Path>) event;
-                            Path loc = ev.context().toAbsolutePath();
-                            if (jarMatcher.matches(loc)) {
-                                if (kind == ENTRY_DELETE) {
-                                    handleRemoveJar(loc);
-                                } else if (kind == ENTRY_MODIFY) {
-                                    handleModifyJar(loc);
-                                }
-                            }
-                        }
-                        key.reset();
-                    } catch (Exception e) {
-                        System.out.println("I AM A TERRIBLE PERSON AND I SHOULD FEEL BAD ABOUT THIS");
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        URLClassLoader classLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
+        Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+        method.setAccessible(true);
+        method.invoke(classLoader, dir.toUri().toURL());
 
         // TODO: Remove - test to see what the classpath looks like
 //        scheduler.scheduleAtFixedRate(() -> printLoadedClasses(".*caffe.*"), 1, 2, TimeUnit.SECONDS);
@@ -82,12 +51,15 @@ public class Main {
 
     private static void printLoadedServices() {
         System.out.println("Printing loaded services");
-        childrenClassLoaders.entrySet().stream()
-                .map(Map.Entry::getValue)
-                .forEach(classLoader -> {
-                    ServiceLoader<CEServiceLoader> serviceLoader = ServiceLoader.load(CEServiceLoader.class, classLoader);
-                    serviceLoader.forEach(Main::printLoaderInfo);
-                });
+        ServiceLoader<CEServiceLoader> serviceLoaders = ServiceLoader.load(CEServiceLoader.class);
+        serviceLoaders.forEach(Main::printLoaderInfo);
+        printLoadedClasses(".*");
+//        childrenClassLoaders.entrySet().stream()
+//                .map(Map.Entry::getValue)
+//                .forEach(classLoader -> {
+//                    ServiceLoader<CEServiceLoader> serviceLoader = ServiceLoader.load(CEServiceLoader.class);
+//                    serviceLoader.forEach(Main::printLoaderInfo);
+//                });
     }
 
     private static void printLoaderInfo(CEServiceLoader loader) {
@@ -103,12 +75,12 @@ public class Main {
                 .filter(url -> url.matches(filter))
                 .forEach(System.out::println);
 
-        System.out.println("--Children Class Loader--");
-        childrenClassLoaders.entrySet().stream().map(Map.Entry::getValue)
-                .flatMap(cl -> Stream.of(cl.getURLs()))
-                .map(URL::getFile)
-                .filter(url -> url.matches(filter))
-                .forEach(System.out::println);
+//        System.out.println("--Children Class Loader--");
+//        childrenClassLoaders.entrySet().stream().map(Map.Entry::getValue)
+//                .flatMap(cl -> Stream.of(cl.getURLs()))
+//                .map(URL::getFile)
+//                .filter(url -> url.matches(filter))
+//                .forEach(System.out::println);
 
         System.out.println("-----------------------");
     }
