@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>caffe-evento-lib</artifactId>
+    <artifactId>caffe_evento_lib</artifactId>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>

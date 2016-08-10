@@ -9,9 +9,10 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>caffe-evento-lib</module>
+        <module>caffe_evento_lib</module>
         <module>caffe-evento-sim</module>
         <module>caffe-evento-core</module>
+        <module>caffe_evento_example_service</module>
     </modules>
 
     <dependencies>
