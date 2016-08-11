@@ -12,7 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
-import test_util.EventCollector;
+import com.cmbellis.caffeevento.lib.test_util.EventCollector;
 
 import static com.cmbellis.caffeevento.lib.impl.services.echo_service.EchoService.createEchoEvent;
 import static org.junit.Assert.*;

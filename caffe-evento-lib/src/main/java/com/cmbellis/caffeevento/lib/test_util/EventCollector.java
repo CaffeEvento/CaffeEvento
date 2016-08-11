@@ -1,4 +1,4 @@
-package test_util;
+package com.cmbellis.caffeevento.lib.test_util;
 
 import com.cmbellis.caffeevento.lib.api.events.*;
 import com.cmbellis.caffeevento.lib.impl.events.EventHandlerImpl;

@@ -1,9 +1,9 @@
 package com.cmbellis.caffeevento.core.main;
 
+import com.cmbellis.caffeevento.lib.api.services.Service;
 import org.apache.felix.framework.FrameworkFactory;
 import org.apache.felix.main.AutoProcessor;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
+import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 
 import java.util.Properties;
@@ -23,7 +23,8 @@ public class CoreApplication {
     public static void main(String[] argv) throws Exception
     {
         // Print welcome banner.
-        System.out.println("\nWelcome to My Launcher");
+        System.out.println("\nWelcome to CaffeEvento");
+        System.out.println("Powered by Apache Felix!");
         System.out.println("======================\n");
 
         Properties configProps = new Properties();
@@ -34,12 +35,26 @@ public class CoreApplication {
 
         try
         {
-            final Framework m_fwk = new FrameworkFactory().newFramework(configProps);
-            m_fwk.init();
-            AutoProcessor.process(configProps, m_fwk.getBundleContext());
-//            scheduledExecutor.scheduleAtFixedRate(() -> printBundles(m_fwk.getBundleContext()), 5, 1, TimeUnit.SECONDS);
-            m_fwk.start();
-            m_fwk.waitForStop(0);
+            final Framework framework = new FrameworkFactory().newFramework(configProps);
+            framework.init();
+            AutoProcessor.process(configProps, framework.getBundleContext());
+
+//            framework.getBundleContext().addBundleListener(bundleEvent -> {
+//                if(bundleEvent.getBundle() != null) {
+//                    for(ServiceReference<?> serviceReference : bundleEvent.getBundle().getRegisteredServices()) {
+//                        final ServiceObjects<?> serviceObjects =
+//                                bundleEvent.getBundle().getBundleContext().getServiceObjects(serviceReference);
+//                        Object s = serviceObjects.getService();
+//                        if(s instanceof Service) {
+//                            Service newService = (Service)s;
+//                            System.out.println("A service event occurred on: " + newService.getClass());
+//                        }
+//                    }
+//                }
+//            });
+
+            framework.start();
+            framework.waitForStop(0);
             System.exit(0);
         }
         catch (Exception ex)
@@ -49,11 +64,4 @@ public class CoreApplication {
             System.exit(-1);
         }
     }
-
-    public static void printBundles(BundleContext context) {
-        Stream.of(context.getBundles())
-                .forEach(System.out::println);
-        System.out.println("-----------------");
-    }
-
 }

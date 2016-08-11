@@ -15,7 +15,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
-import test_util.EventCollector;
+import com.cmbellis.caffeevento.lib.test_util.EventCollector;
 
 import java.util.ArrayList;
 import java.util.List;

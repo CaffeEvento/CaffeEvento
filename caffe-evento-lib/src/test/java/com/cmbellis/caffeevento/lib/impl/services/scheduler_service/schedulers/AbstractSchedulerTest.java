@@ -14,7 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.easymock.annotation.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
-import test_util.EventCollector;
+import com.cmbellis.caffeevento.lib.test_util.EventCollector;
 
 import java.util.UUID;
 import java.util.function.Consumer;

@@ -1,4 +1,4 @@
-package com.cmbellis.caffeevento.lib.impl.services.request_service;
+package com.cmbellis.caffeevento.request_service;
 
 import com.cmbellis.caffeevento.lib.api.events.*;
 import com.cmbellis.caffeevento.lib.api.events.event_queue.EventQueue;
@@ -6,15 +6,17 @@ import com.cmbellis.caffeevento.lib.api.events.event_queue.event_queue_interface
 import com.cmbellis.caffeevento.lib.impl.events.*;
 import com.cmbellis.caffeevento.lib.impl.events.event_queue.event_queue_interface.EventQueueInterfaceImpl;
 import com.cmbellis.caffeevento.lib.impl.events.event_queue.SynchronousEventQueue;
+import com.cmbellis.caffeevento.request_service.impl.request_service.RequestService;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
-import test_util.EventCollector;
+import com.cmbellis.caffeevento.lib.test_util.EventCollector;
 
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by chris on 7/9/16.

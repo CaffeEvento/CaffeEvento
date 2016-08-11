@@ -16,7 +16,7 @@ import org.powermock.api.easymock.annotation.Mock;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
-import test_util.EventCollector;
+import com.cmbellis.caffeevento.lib.test_util.EventCollector;
 
 import java.util.UUID;
 import java.util.function.Function;

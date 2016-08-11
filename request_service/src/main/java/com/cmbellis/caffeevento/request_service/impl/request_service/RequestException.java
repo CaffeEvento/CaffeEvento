@@ -1,4 +1,4 @@
-package com.cmbellis.caffeevento.lib.impl.services.request_service;
+package com.cmbellis.caffeevento.request_service.impl.request_service;
 
 /**
  * Created by chris on 7/4/16.

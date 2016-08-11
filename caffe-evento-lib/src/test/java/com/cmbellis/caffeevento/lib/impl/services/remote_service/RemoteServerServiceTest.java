@@ -18,7 +18,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import test_util.EventCollector;
+import com.cmbellis.caffeevento.lib.test_util.EventCollector;
 
 import java.util.ArrayList;
 import java.util.List;

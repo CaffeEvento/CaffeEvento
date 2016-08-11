@@ -17,6 +17,11 @@
             <artifactId>org.apache.felix.main</artifactId>
             <version>5.4.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.cmbellis</groupId>
+            <artifactId>caffe-evento-lib</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 </project>

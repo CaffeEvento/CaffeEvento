@@ -1,4 +1,4 @@
-package com.cmbellis.caffeevento.lib.impl.services.request_service;
+package com.cmbellis.caffeevento.request_service.impl.request_service;
 
 import com.cmbellis.caffeevento.lib.api.events.*;
 import com.cmbellis.caffeevento.lib.api.events.event_queue.event_queue_interface.EventQueueInterface;
