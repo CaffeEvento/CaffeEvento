@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 import com.cmbellis.caffeevento.lib.api.events.EventHandler;
 import com.google.gson.GsonBuilder;
@@ -23,6 +24,7 @@ import java.util.regex.Pattern;
  * This has to be abstract in order to allow for transparent serialization over the network.
  * Created by chris on 7/1/16.
  */
+@CEExport
 public final class EventHandlerImpl implements EventHandler {
     private EventHandlerData eventHandlerData = new EventHandlerData();
     private List<Consumer<Event>> eventConsumers = new ArrayList<>();

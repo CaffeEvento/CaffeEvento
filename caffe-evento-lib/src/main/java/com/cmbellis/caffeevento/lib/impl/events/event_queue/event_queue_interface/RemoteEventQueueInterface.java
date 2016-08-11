@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events.event_queue.event_queue_interface;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 import com.cmbellis.caffeevento.lib.api.events.EventHandler;
 import com.cmbellis.caffeevento.lib.api.lib.EmbeddedServletServer;
@@ -20,6 +21,7 @@ import java.util.UUID;
 /**
  * Created by chris on 7/14/16.
  */
+@CEExport
 public class RemoteEventQueueInterface extends BufferedEventQueueInterface {
     private EmbeddedServletServer server;
     private UUID serverId = UUID.randomUUID();

@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.api.events;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.impl.events.EventHandlerImpl;
 
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.function.Predicate;
 /**
  * Created by chris on 7/13/16.
  */
+@CEExport
 public interface EventHandler {
     UUID getEventHandlerId();
     Predicate<Event> getHandlerCondition();

@@ -13,11 +13,6 @@
     <packaging>jar</packaging>
     <dependencies>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>LATEST</version>
-        </dependency>
-        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
             <version>LATEST</version>
@@ -87,6 +82,11 @@
             <version>1.6.4</version>
             <scope>test</scope>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>19.0</version>
         </dependency>
     </dependencies>
 

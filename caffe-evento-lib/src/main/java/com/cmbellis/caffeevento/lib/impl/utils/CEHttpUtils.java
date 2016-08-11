@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.utils;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.google.gson.JsonObject;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -15,6 +16,7 @@ import java.util.Map;
 /**
  * Created by chris on 7/22/16.
  */
+@CEExport
 public final class CEHttpUtils {
     private static HttpClient client = HttpClients.createDefault();
 

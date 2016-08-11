@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events.event_queue;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.EventHandler;
 import com.cmbellis.caffeevento.lib.api.events.event_queue.EventQueue;
 import com.cmbellis.caffeevento.lib.api.events.event_queue.event_queue_interface.EventQueueInterface;
@@ -12,6 +13,7 @@ import java.util.List;
 /**
  * Created by chris on 7/21/16.
  */
+@CEExport
 public abstract class AbstractEventQueue implements EventQueue {
     private List<EventHandler> eventHandlers = new ArrayList<>();
     private List<EventSource> eventSources = new ArrayList<>();

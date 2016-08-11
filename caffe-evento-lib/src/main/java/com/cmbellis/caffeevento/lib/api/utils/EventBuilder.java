@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.api.utils;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 import com.cmbellis.caffeevento.lib.api.events.EventSource;
 import com.cmbellis.caffeevento.lib.impl.events.EventImpl;
@@ -9,6 +10,7 @@ import java.util.function.Consumer;
 /**
  * Created by chris on 7/12/16.
  */
+@CEExport
 public class EventBuilder {
     private EventBuilder() {
         this.event = new EventImpl();

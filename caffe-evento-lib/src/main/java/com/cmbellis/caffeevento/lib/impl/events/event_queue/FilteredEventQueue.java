@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events.event_queue;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 
 import java.util.function.Consumer;
@@ -8,6 +9,7 @@ import java.util.function.Predicate;
 /**
  * Created by chris on 7/14/16.
  */
+@CEExport
 public class FilteredEventQueue extends SynchronousEventQueue {
     private Predicate<Event> eventAcceptCriteria;
 

@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events.event_queue.event_queue_interface;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.EventHandler;
 import com.cmbellis.caffeevento.lib.api.events.event_queue.event_queue_interface.EventQueueInterface;
 import com.cmbellis.caffeevento.lib.api.events.event_queue.event_queue_interface.EventQueueInterfaceChangedListener;
@@ -15,6 +16,7 @@ import java.util.function.Consumer;
 /**
  * Created by chris on 7/1/16.
  */
+@CEExport
 public class EventQueueInterfaceImpl implements EventQueueInterface {
 
     private List<EventQueueInterfaceChangedListener> eventQueueInterfaceChangedListeners = new ArrayList<>();

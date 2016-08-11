@@ -1,5 +1,7 @@
 package com.cmbellis.caffeevento.lib.impl.lib;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -7,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by chris on 7/14/16.
  */
+@CEExport
 public class AutoRotatedSetLogger<T> extends RotatedSetLogger<T> {
     private RotatedSetLogger<T> delegate;
     private ScheduledExecutorService executorService;

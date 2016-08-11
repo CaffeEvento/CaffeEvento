@@ -1,5 +1,7 @@
 package com.cmbellis.caffeevento.lib.impl.lib.optional;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
+
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -7,6 +9,7 @@ import java.util.function.Consumer;
  * TODO: write a test for me
  * Created by chris on 7/25/16.
  */
+@CEExport
 public class OptionalConsumer<T> {
     private Optional<T> optional;
 

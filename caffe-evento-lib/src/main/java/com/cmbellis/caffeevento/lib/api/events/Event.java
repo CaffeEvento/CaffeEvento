@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.api.events;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.cmbellis.caffeevento.lib.impl.events.EventImpl;
@@ -13,6 +14,7 @@ import java.util.UUID;
 /**
  * Created by chris on 7/13/16.
  */
+@CEExport
 public interface Event {
 
     String getEventName();

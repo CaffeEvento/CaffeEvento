@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events.event_queue;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 import com.cmbellis.caffeevento.lib.api.events.EventHandler;
 
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Created by chris on 7/21/16.
  */
+@CEExport
 public class AsynchronousEventQueue extends AbstractEventQueue {
     private ExecutorService myExecutor;
     private Consumer<Event> defaultHandler;

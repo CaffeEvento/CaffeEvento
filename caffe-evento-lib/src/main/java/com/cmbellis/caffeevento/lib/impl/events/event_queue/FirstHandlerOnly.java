@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events.event_queue;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 import com.cmbellis.caffeevento.lib.impl.lib.optional.OptionalConsumer;
 
@@ -8,6 +9,7 @@ import java.util.function.Consumer;
 /**
  * Created by eric on 7/27/16.
  */
+@CEExport
 public class FirstHandlerOnly extends AbstractEventQueue {
     Consumer<Event> defaultHandler;
 

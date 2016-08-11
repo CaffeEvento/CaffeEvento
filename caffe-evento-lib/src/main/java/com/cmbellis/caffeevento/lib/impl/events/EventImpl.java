@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 import com.google.gson.GsonBuilder;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 /**
  * Created by chris on 7/1/16.
  */
+@CEExport
 public class EventImpl implements Event {
     private String eventName;
     private String eventType;

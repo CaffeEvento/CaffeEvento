@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.events;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.events.Event;
 import com.cmbellis.caffeevento.lib.api.events.EventSink;
 import com.cmbellis.caffeevento.lib.api.events.EventSource;
@@ -11,6 +12,7 @@ import java.util.UUID;
 /**
  * Created by chris on 7/1/16.
  */
+@CEExport
 public class EventSourceImpl implements EventSource {
     private UUID eventSourceId = UUID.randomUUID();
 

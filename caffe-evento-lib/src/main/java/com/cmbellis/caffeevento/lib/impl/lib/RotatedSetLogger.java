@@ -1,6 +1,7 @@
 package com.cmbellis.caffeevento.lib.impl.lib;
 
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.cmbellis.caffeevento.lib.api.lib.SetLogger;
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.Sets;
@@ -11,6 +12,7 @@ import java.util.Set;
 /**
  * Created by chris on 7/14/16.
  */
+@CEExport
 public class RotatedSetLogger<T> implements SetLogger<T> {
     public static final int DEFAULT_MAX = 3;
     private Set<T> currentLog;

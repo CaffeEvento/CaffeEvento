@@ -1,5 +1,6 @@
 package com.cmbellis.caffeevento.lib.impl.utils;
 
+import com.cmbellis.caffeevento.lib.annotation.CEExport;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -9,6 +10,7 @@ import java.io.Reader;
 /**
  * Created by chris on 7/18/16.
  */
+@CEExport
 public final class JSONUtils {
     private JSONUtils() {}
     private static final Gson gson = new GsonBuilder().create();
