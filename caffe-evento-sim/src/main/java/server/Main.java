@@ -1,14 +1,13 @@
 package server;
 
 
-import api.events.Event;
-import api.events.EventSource;
-import api.events.event_queue.EventQueue;
-import api.services.Service;
-import impl.events.EventSourceImpl;
-import impl.events.event_queue.AsynchronousEventQueue;
-import impl.lib.servlet_server.SimpleServletRegister;
-import impl.services.remote_service.RemoteServerService;
+import com.cmbellis.caffeevento.lib.api.events.Event;
+import com.cmbellis.caffeevento.lib.api.events.EventSource;
+import com.cmbellis.caffeevento.lib.api.events.event_queue.EventQueue;
+import com.cmbellis.caffeevento.lib.impl.events.EventSourceImpl;
+import com.cmbellis.caffeevento.lib.impl.events.event_queue.AsynchronousEventQueue;
+import com.cmbellis.caffeevento.lib.impl.lib.servlet_server.SimpleServletRegister;
+import com.cmbellis.caffeevento.lib.impl.services.remote_service.RemoteServerService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.jetty.server.Handler;
@@ -19,8 +18,6 @@ import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

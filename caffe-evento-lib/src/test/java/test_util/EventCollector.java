@@ -1,7 +1,7 @@
 package test_util;
 
-import api.events.*;
-import impl.events.EventHandlerImpl;
+import com.cmbellis.caffeevento.lib.api.events.*;
+import com.cmbellis.caffeevento.lib.impl.events.EventHandlerImpl;
 
 import java.util.ArrayList;
 import java.util.List;

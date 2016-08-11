@@ -1,7 +1,7 @@
 package integration;
 
-import api.events.event_queue.event_queue_interface.EventQueueInterface;
-import impl.events.event_queue.event_queue_interface.BufferedEventQueueInterface;
+import com.cmbellis.caffeevento.lib.api.events.event_queue.event_queue_interface.EventQueueInterface;
+import com.cmbellis.caffeevento.lib.impl.events.event_queue.event_queue_interface.BufferedEventQueueInterface;
 
 /**
  * Created by chris on 7/14/16.
