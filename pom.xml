@@ -12,7 +12,7 @@
         <module>caffe-evento-lib</module>
         <module>caffe-evento-sim</module>
         <module>caffe-evento-core</module>
-        <module>request_service</module>
+        <module>request-service</module>
     </modules>
 
     <dependencies>

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>request_service</artifactId>
+    <artifactId>request-service</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -25,8 +25,12 @@
             <version>5.4.0</version>
             <scope>provided</scope>
         </dependency>
-        
-
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -61,6 +65,10 @@
                     <instructions>
                         <Private-Package>com.cmbellis.caffeevento.request_service.*</Private-Package>
                         <Bundle-Activator>com.cmbellis.caffeevento.request_service.impl.RequestServiceActivator</Bundle-Activator>
+                        <Embed-Dependency>com.cmbellis.caffeevento.lib;scope=compile|runtime;inline=false</Embed-Dependency>
+                        <Import-Package>*</Import-Package>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Embed-StripGroup>true</Embed-StripGroup>
                     </instructions>
                 </configuration>
             </plugin>
