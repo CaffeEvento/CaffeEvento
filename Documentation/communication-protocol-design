@@ -1,0 +1,21 @@
+Since we tried and failed to use OSGI, I decided that it seemed like for what we were doing, we really just needed simple message passing.
+
+So what I have decided to do is utilize Apache Active MQ, yes that means there will be two layers of message passing probably, but that's ok, we are building a set of abstractions.
+
+Core will implement the message consumer and it will automatically start up a server that all the consumers can access, then the consumers will access it.
+
+This allows us to easily trainsition from this system to a more centrally managed message queue if we choose that we need to.
+
+The new design may require some rearchitecting in order to fully optimize the system.
+
+So the first thing is to create an embedded broker, then add a consumer that can consume the events, still working on how the events are going to be sent out.
+
+I think there is going to be some need of a "System Message" -  this "System Message" should be used for registering event handlers.
+
+Although, what we could do is simply have everything handled with an event.... which isn't a bad idea.
+
+We do need to figure out how to get the routing back to work, they really shouldn't need to implement the queue, they can just implement a consumer of events
+
+events are going to need a bit more routing than that though...
+
+that's why this problem isn't solved yet.
